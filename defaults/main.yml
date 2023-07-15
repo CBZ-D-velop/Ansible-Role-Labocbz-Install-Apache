@@ -1,0 +1,24 @@
+---
+apache_https_listen_port: 443
+apache_http_listen_port: 80
+
+apache_modules:
+  - "ssl"
+  - "rewrite"
+  - "filter"
+  - "headers"
+
+apache_enable_qos: false
+apache_qos_client_entries: "100000"
+apache_qos_srv_max_conn_per_ip: "50"
+apache_qos_max_clients: "256"
+apache_qos_srv_max_conn_close: "180"
+apache_qos_srv_min_data_rate: "150 1200"
+
+apache_enable_default_vhosts: true
+apache_remove_all_no_default_vhosts: true
+
+apache_enable_security: false
+apache_security_core_version: "3.3.0"
+
+apache_ssl_files_path: "/etc/letsencrypt/live"

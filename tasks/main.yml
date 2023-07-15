@@ -1,0 +1,195 @@
+---
+- name: "Install packages"
+  notify: "Enable and start Apache2"
+  ansible.builtin.package:
+    update_cache: true
+    name:
+      - apache2
+      - software-properties-common
+      - certbot
+
+- name: "Configure Apache2"
+  notify: "Restart Apache2"
+  block:
+    - name: "Import Apache2 confiruations files"
+      loop:
+        - "apache2.conf"
+        - "ports.conf"
+      loop_control:
+        loop_var: file
+      ansible.builtin.template:
+        src: "templates/{{ file }}.j2"
+        dest: "/etc/apache2/{{ file }}"
+        owner: "root"
+        group: "root"
+        mode: 0600
+
+    - name: "Prepare folders"
+      loop:
+        - "{{ apache_ssl_files_path }}"
+      loop_control:
+        loop_var: file
+      register: output
+      changed_when: output.size <= 0
+      ansible.builtin.file:
+        path: "{{ file }}"
+        state: directory
+        recurse: yes
+        group: "www-data"
+        owner: "www-data"
+        mode: 0600
+
+- name: "Install and configure QOS"
+  notify: "Restart Apache2"
+  when: apache_enable_qos
+  block:
+    - name: "Install libapache2-mod-qos"
+      ansible.builtin.package:
+        update_cache: true
+        name:
+          - libapache2-mod-qos
+
+    - name: "Import mod_qos confiruations files"
+      ansible.builtin.template:
+        src: "templates/qos.conf.j2"
+        dest: "/etc/apache2/mods-available/qos.conf"
+        owner: "root"
+        group: "root"
+        mode: 0600
+
+    - name: "Enable Apache Qos module"
+      community.general.apache2_module:
+        state: present
+        name: "qos"
+
+- name: "Install and configure Modsecurity"
+  notify: "Restart Apache2"
+  when: apache_enable_security
+  block:
+    - name: "Install libapache2-mod-security2"
+      ansible.builtin.package:
+        update_cache: true
+        name:
+          - libapache2-mod-security2
+
+    - name: "Import Modsecurity confiruations files"
+      loop:
+        - { src: "templates/modsecurity.conf.j2", dest: "/etc/apache2/mods-available/modsecurity.conf"}
+        - { src: "templates/security2.conf.j2", dest: "/etc/apache2/mods-available/security2.conf"}
+      loop_control:
+        loop_var: file
+      ansible.builtin.template:
+        src: "{{ file.src }}"
+        dest: "{{ file.dest }}"
+        owner: "root"
+        group: "root"
+        mode: 0600
+
+    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }} directory"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+
+    - name: "Create /etc/apache2/modsecurity-crs directory"
+      when: not file_check.stat.exists
+      ansible.builtin.file:
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        state: directory
+        recurse: yes
+        owner: "root"
+        group: "root"
+        mode: 0600
+
+    - name: "Dowload coreruleset by clone its repository"
+      ansible.builtin.git:
+        repo: "https://github.com/coreruleset/coreruleset"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        version: "v{{ apache_security_core_version }}"
+
+    - name: "Import CRS confiruations files"
+      ansible.builtin.template:
+        src: "templates/crs-setup.conf.j2"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}/crs-setup.conf"
+        owner: "root"
+        group: "root"
+        mode: 0600
+
+    - name: "Enable Apache2 Security module"
+      community.general.apache2_module:
+        state: present
+        name: "security2"
+
+- name: "Enable Apache modules"
+  notify: "Restart Apache2"
+  loop: "{{ apache_modules }}"
+  loop_control:
+    loop_var: module
+  community.general.apache2_module:
+    state: present
+    name: "{{ module }}"
+
+- name: "Rename and Enable vhosts"
+  notify: "Reload Apache2"
+  block:
+    - name: "Get the state of the default SSL vhost"
+      ansible.builtin.stat:
+        path: "/etc/apache2/sites-available/default-ssl.conf"
+      register: default_ssl_conf
+
+    - name: "Rename default SSL conf file"
+      when: default_ssl_conf.stat.exists
+      block:
+        - name: "Copy default SSL file to a better place / name"
+          ansible.builtin.copy:
+            src: "/etc/apache2/sites-available/default-ssl.conf"
+            dest: "/etc/apache2/sites-available/000-default-SSL.conf"
+            remote_src: yes
+            owner: "root"
+            group: "root"
+            mode: 0600
+
+        - name: "Remove default SSL file"
+          ansible.builtin.file:
+            path: "/etc/apache2/sites-available/default-ssl.conf"
+            state: absent
+
+    - name: "Disable all other vhosts and clean"
+      when: apache_remove_all_no_default_vhosts
+      block:
+        - name: "Find all files in available folder"
+          register: vhosts
+          ansible.builtin.find:
+            paths: "/etc/apache2/sites-available"
+
+        - name: "Remove all other vhosts than defaults"
+          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
+          loop: "{{ vhosts.files }}"
+          loop_control:
+            loop_var: host
+          ansible.builtin.file:
+            path: "/etc/apache2/sites-available/{{ host }}"
+            state: absent
+
+        - name: "Remove all vhosts"
+          loop: "{{ vhosts.files + ['000-default.conf', '000-default-SSL.conf'] }}"
+          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
+          loop_control:
+            loop_var: host
+          ansible.builtin.file:
+            path: "/etc/apache2/sites-enabled/{{ host }}"
+            state: absent
+
+    - name: "Enable defaults vhosts if enabled"
+      when: apache_enable_default_vhosts
+      loop:
+        - "000-default.conf"
+        - "000-default-SSL.conf"
+      loop_control:
+        loop_var: vhost
+      ansible.builtin.file:
+        src: "/etc/apache2/sites-available/{{ vhost }}"
+        dest: "/etc/apache2/sites-enabled/{{ vhost }}"
+        state: link
+        owner: "root"
+        group: "root"
+        mode: 0600
