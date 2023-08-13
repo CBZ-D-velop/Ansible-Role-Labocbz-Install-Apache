@@ -1,23 +1,23 @@
 ---
 - name: "Enable and start Apache2"
-  register: apache_service_status
-  changed_when: apache_service_status.state != "started"
+  register: install_apache_service_status
+  changed_when: install_apache_service_status.state != "started"
   ansible.builtin.service:
     name: "apache2"
     state: "started"
     enabled: yes
 
 - name: "Restart Apache2"
-  register: apache_service_status
-  changed_when: apache_service_status.state != "restarted"
+  register: install_apache_service_status
+  changed_when: install_apache_service_status.state != "restarted"
   ansible.builtin.service:
     name: "apache2"
     state: "restarted"
     daemon_reload: true
 
 - name: "Reload Apache2"
-  register: apache_service_status
-  changed_when: apache_service_status.state != "reloaded"
+  register: install_apache_service_status
+  changed_when: install_apache_service_status.state != "reloaded"
   ansible.builtin.service:
     name: "apache2"
     state: "reloaded"

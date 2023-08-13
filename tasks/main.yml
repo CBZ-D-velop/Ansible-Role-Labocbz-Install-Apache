@@ -24,24 +24,9 @@
         group: "root"
         mode: "0600"
 
-    - name: "Prepare folders"
-      loop:
-        - "{{ apache_ssl_files_path }}"
-      loop_control:
-        loop_var: file
-      register: output
-      changed_when: output.size <= 0
-      ansible.builtin.file:
-        path: "{{ file }}"
-        state: directory
-        recurse: yes
-        group: "www-data"
-        owner: "www-data"
-        mode: "0600"
-
 - name: "Install and configure QOS"
   notify: "Restart Apache2"
-  when: apache_enable_qos | default(false)
+  when: install_apache_enable_qos | default(false)
   block:
     - name: "Install libapache2-mod-qos"
       ansible.builtin.package:
@@ -64,7 +49,7 @@
 
 - name: "Install and configure Modsecurity"
   notify: "Restart Apache2"
-  when: apache_enable_security | default(false)
+  when: install_apache_enable_security | default(false)
   block:
     - name: "Install libapache2-mod-security2"
       ansible.builtin.package:
@@ -85,15 +70,15 @@
         group: "root"
         mode: "0600"
 
-    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }} directory"
+    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
       register: file_check
       ansible.builtin.stat:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
 
     - name: "Create /etc/apache2/modsecurity-crs directory"
       when: not file_check.stat.exists
       ansible.builtin.file:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
         state: directory
         recurse: yes
         owner: "root"
@@ -103,13 +88,13 @@
     - name: "Dowload coreruleset by clone its repository"
       ansible.builtin.git:
         repo: "https://github.com/coreruleset/coreruleset"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
-        version: "v{{ apache_security_core_version }}"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
+        version: "v{{ install_apache_security_core_version }}"
 
     - name: "Import CRS confiruations files"
       ansible.builtin.template:
         src: "templates/crs-setup.conf.j2"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}/crs-setup.conf"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
         owner: "root"
         group: "root"
         mode: "0600"
@@ -121,75 +106,40 @@
 
 - name: "Enable Apache modules"
   notify: "Restart Apache2"
-  loop: "{{ apache_modules }}"
+  loop: "{{ install_apache_modules }}"
   loop_control:
     loop_var: module
   community.general.apache2_module:
     state: present
     name: "{{ module }}"
 
-- name: "Rename and Enable vhosts"
+- name: "Disable all other vhosts and clean"
   notify: "Reload Apache2"
+  when: install_apache_remove_all_vhosts | default(false)
   block:
-    - name: "Get the state of the default SSL vhost"
-      ansible.builtin.stat:
-        path: "/etc/apache2/sites-available/default-ssl.conf"
-      register: default_ssl_conf
+    - name: "Find all files in available folder"
+      register: vhosts
+      ansible.builtin.find:
+        paths: "/etc/apache2/sites-available"
 
-    - name: "Rename default SSL conf file"
-      when: default_ssl_conf.stat.exists
-      block:
-        - name: "Copy default SSL file to a better place / name"
-          ansible.builtin.copy:
-            src: "/etc/apache2/sites-available/default-ssl.conf"
-            dest: "/etc/apache2/sites-available/000-default-SSL.conf"
-            remote_src: yes
-            owner: "root"
-            group: "root"
-            mode: "0600"
-
-        - name: "Remove default SSL file"
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-available/default-ssl.conf"
-            state: absent
-
-    - name: "Disable all other vhosts and clean"
-      when: apache_remove_all_no_default_vhosts | default(false)
-      block:
-        - name: "Find all files in available folder"
-          register: vhosts
-          ansible.builtin.find:
-            paths: "/etc/apache2/sites-available"
-
-        - name: "Remove all other vhosts than defaults"
-          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
-          loop: "{{ vhosts.files }}"
-          loop_control:
-            loop_var: host
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-available/{{ host }}"
-            state: absent
-
-        - name: "Remove all vhosts"
-          loop: "{{ vhosts.files + ['000-default.conf', '000-default-SSL.conf'] }}"
-          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
-          loop_control:
-            loop_var: host
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-enabled/{{ host }}"
-            state: absent
-
-    - name: "Enable defaults vhosts if enabled"
-      when: apache_enable_default_vhosts | default(false)
-      loop:
-        - "000-default.conf"
-        - "000-default-SSL.conf"
+    - name: "Remove all other vhosts"
+      loop: "{{ vhosts.files }}"
       loop_control:
-        loop_var: vhost
+        loop_var: host
       ansible.builtin.file:
-        src: "/etc/apache2/sites-available/{{ vhost }}"
-        dest: "/etc/apache2/sites-enabled/{{ vhost }}"
-        state: link
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        path: "{{ host.path }}"
+        state: absent
+
+    - name: "Find all files in enabled folder"
+      register: vhosts
+      ansible.builtin.find:
+        paths: "/etc/apache2/sites-enabled"
+        file_type: link
+
+    - name: "Remove all other vhosts"
+      loop: "{{ vhosts.files }}"
+      loop_control:
+        loop_var: host
+      ansible.builtin.file:
+        path: "{{ host.path }}"
+        state: absent

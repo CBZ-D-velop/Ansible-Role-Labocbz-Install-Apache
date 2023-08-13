@@ -157,20 +157,21 @@ Include ports.conf
 # your system is serving content from a sub-directory in /srv you must allow
 # access here, or in any related virtual host.
 <Directory />
-        Options FollowSymLinks
+        Options -Indexes -FollowSymLinks
         AllowOverride None
         Require all denied
 </Directory>
 
 <Directory /usr/share>
+        Options -Indexes -FollowSymLinks
         AllowOverride None
-        Require all granted
+        Require all denied
 </Directory>
 
 <Directory /var/www/>
-        Options Indexes FollowSymLinks
+        Options -Indexes -FollowSymLinks
         AllowOverride None
-        Require all granted
+        Require all denied
 </Directory>
 
 #<Directory /srv/>
@@ -179,7 +180,8 @@ Include ports.conf
 #       Require all granted
 #</Directory>
 
-
+ServerSignature Off
+ServerTokens ProductOnly
 
 
 # AccessFileName: The name of the file to look for in each directory
@@ -223,3 +225,27 @@ IncludeOptional conf-enabled/*.conf
 
 # Include the virtual host configurations:
 IncludeOptional sites-enabled/*.conf
+
+<VirtualHost *:{{ install_apache_http_listen_port }}>
+        ServerName localhost
+        ServerAlias localhost
+        DocumentRoot /var/www/html
+
+        <Directory /var/www/html>
+                Options -Indexes +FollowSymLinks
+                AllowOverride None
+                Require all granted
+        </Directory>
+</VirtualHost>
+
+<VirtualHost *:{{ install_apache_http_listen_port }}>
+        ServerName null
+        ServerAlias *
+        Redirect 403 /
+</VirtualHost>
+
+<VirtualHost *:{{ install_apache_https_listen_port }}>
+        ServerName null
+        ServerAlias *
+        Redirect 403 /
+</VirtualHost>

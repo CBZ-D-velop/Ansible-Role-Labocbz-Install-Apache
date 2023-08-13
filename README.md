@@ -1,4 +1,4 @@
-# Ansible role: labocbz.install_apache
+# Ansible role: labocbz.install_apache_
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -117,29 +117,29 @@ Some vars a required to run this role:
 
 ```YAML
 ---
-apache_https_listen_port: 443
-apache_http_listen_port: 80
+install_apache_https_listen_port: 443
+install_apache_http_listen_port: 80
 
-apache_modules:
+install_apache_modules:
   - "ssl"
   - "rewrite"
   - "filter"
   - "headers"
 
-apache_enable_qos: false
-apache_qos_client_entries: "100000"
-apache_qos_srv_max_conn_per_ip: "50"
-apache_qos_max_clients: "256"
-apache_qos_srv_max_conn_close: "180"
-apache_qos_srv_min_data_rate: "150 1200"
+install_apache_enable_qos: false
+install_apache_qos_client_entries: "100000"
+install_apache_qos_srv_max_conn_per_ip: "50"
+install_apache_qos_max_clients: "256"
+install_apache_qos_srv_max_conn_close: "180"
+install_apache_qos_srv_min_data_rate: "150 1200"
 
-apache_enable_default_vhosts: true
-apache_remove_all_no_default_vhosts: true
+install_apache_enable_default_vhosts: true
+install_apache_remove_all_no_default_vhosts: true
 
-apache_enable_security: false
-apache_security_core_version: "3.3.0"
+install_apache_enable_security: false
+install_apache_security_core_version: "3.3.0"
 
-apache_ssl_files_path: "/etc/letsencrypt/live"
+install_apache_ssl_files_path: "/etc/letsencrypt/live"
 
 ```
 
@@ -152,10 +152,10 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 ```YAML
 # From inventory
 ---
-inv_apache_https_listen_port: 443
-inv_apache_http_listen_port: 80
+inv_install_apache_https_listen_port: 443
+inv_install_apache_http_listen_port: 80
 
-inv_apache_modules:
+inv_install_apache_modules:
   - "ssl"
   - "rewrite"
   - "proxy"
@@ -167,24 +167,24 @@ inv_apache_modules:
   - "headers"
   - "proxy_wstunnel"
 
-inv_apache_enable_qos: true
-inv_apache_qos_client_entries: "100000"
-inv_apache_qos_srv_max_conn_per_ip: "50"
-inv_apache_qos_max_clients: "256"
-inv_apache_qos_srv_max_conn_close: "180"
-inv_apache_qos_srv_min_data_rate: "150 1200"
+inv_install_apache_enable_qos: true
+inv_install_apache_qos_client_entries: "100000"
+inv_install_apache_qos_srv_max_conn_per_ip: "50"
+inv_install_apache_qos_max_clients: "256"
+inv_install_apache_qos_srv_max_conn_close: "180"
+inv_install_apache_qos_srv_min_data_rate: "150 1200"
 
-inv_apache_enable_security: true
-inv_apache_enable_default_vhosts: false
+inv_install_apache_enable_security: true
+inv_install_apache_enable_default_vhosts: false
 
 ```
 
 ```YAML
 # From AWX / Tower
 ---
-tower_apache_security_core_version: "3.3.0"
-tower_apache_enable_default_vhosts: true
-tower_apache_remove_all_no_default_vhosts: true
+tower_install_apache_security_core_version: "3.3.0"
+tower_install_apache_enable_default_vhosts: true
+tower_install_apache_remove_all_no_default_vhosts: true
 
 ```
 
@@ -193,25 +193,25 @@ tower_apache_remove_all_no_default_vhosts: true
 To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
 
 ```YAML
-- name: "Include labocbz.install_apache"
+- name: "Include labocbz.install_apache_"
   tags:
-    - "labocbz.install_apache"
+    - "labocbz.install_apache_"
   vars:
-    apache_https_listen_port: "{{ inv_apache_https_listen_port }}"
-    apache_http_listen_port: "{{ inv_apache_http_listen_port }}"
-    apache_modules: "{{ inv_apache_modules }}"
-    apache_enable_qos: "{{ inv_apache_enable_qos }}"
-    apache_qos_client_entries: "{{ inv_apache_qos_client_entries }}"
-    apache_qos_srv_max_conn_per_ip: "{{ inv_apache_qos_srv_max_conn_per_ip }}"
-    apache_qos_max_clients: "{{ inv_apache_qos_max_clients }}"
-    apache_qos_srv_max_conn_close: "{{ inv_apache_qos_srv_max_conn_close }}"
-    apache_qos_srv_min_data_rate: "{{ inv_apache_qos_srv_min_data_rate }}"
-    apache_enable_security: "{{ inv_apache_enable_security }}"
-    apache_security_core_version: "{{ tower_apache_security_core_version }}"
-    apache_enable_default_vhosts: "{{ tower_apache_enable_default_vhosts }}"
-    apache_remove_all_no_default_vhosts: "{{ tower_apache_remove_all_no_default_vhosts }}"
+    install_apache_https_listen_port: "{{ inv_install_apache_https_listen_port }}"
+    install_apache_http_listen_port: "{{ inv_install_apache_http_listen_port }}"
+    install_apache_modules: "{{ inv_install_apache_modules }}"
+    install_apache_enable_qos: "{{ inv_install_apache_enable_qos }}"
+    install_apache_qos_client_entries: "{{ inv_install_apache_qos_client_entries }}"
+    install_apache_qos_srv_max_conn_per_ip: "{{ inv_install_apache_qos_srv_max_conn_per_ip }}"
+    install_apache_qos_max_clients: "{{ inv_install_apache_qos_max_clients }}"
+    install_apache_qos_srv_max_conn_close: "{{ inv_install_apache_qos_srv_max_conn_close }}"
+    install_apache_qos_srv_min_data_rate: "{{ inv_install_apache_qos_srv_min_data_rate }}"
+    install_apache_enable_security: "{{ inv_install_apache_enable_security }}"
+    install_apache_security_core_version: "{{ tower_install_apache_security_core_version }}"
+    install_apache_enable_default_vhosts: "{{ tower_install_apache_enable_default_vhosts }}"
+    install_apache_remove_all_no_default_vhosts: "{{ tower_install_apache_remove_all_no_default_vhosts }}"
   ansible.builtin.include_role:
-    name: "labocbz.install_apache"
+    name: "labocbz.install_apache_"
 ```
 
 ## Architectural Decisions Records
@@ -226,7 +226,7 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2023-04-18: Defaults vhosts
 
 * All vhosts are disabled on install, because you have to add any conf after the install.
-* If you perform a reinstall, you can call the add_apache_confs to re import removed conf.
+* If you perform a reinstall, you can call the add_install_apache_confs to re import removed conf.
 * Default vhost (HTTP/HTTPS) can be enabled or disabled on install, in order to have a minimal blach hole for all unmatched domains.
 
 ### 2023-04-19: Clean others vhosts

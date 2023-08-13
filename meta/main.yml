@@ -1,7 +1,7 @@
 galaxy_info:
   author: "Lord Robin Crombez"
   namespace: "labocbz"
-  role_name: "install_apache"
+  role_name: "install_apache_"
   description: "An Ansible role to install and configure Apache2 HTTP on your host."
   company: "Labo-CBZ"
 

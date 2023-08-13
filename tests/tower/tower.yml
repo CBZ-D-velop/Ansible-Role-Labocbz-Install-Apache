@@ -1,4 +1,3 @@
 ---
-tower_apache_security_core_version: "3.3.0"
-tower_apache_enable_default_vhosts: true
-tower_apache_remove_all_no_default_vhosts: true
+tower_install_apache_security_core_version: "3.3.0"
+tower_install_apache_remove_all_vhosts: true

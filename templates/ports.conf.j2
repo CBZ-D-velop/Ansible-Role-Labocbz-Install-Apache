@@ -8,12 +8,12 @@
 # have to change the VirtualHost statement in
 # /etc/apache2/sites-enabled/000-default.conf
 
-Listen {{ apache_http_listen_port | default("80") }}
+Listen {{ install_apache_http_listen_port | default("80") }}
 
 <IfModule ssl_module>
-        Listen {{ apache_https_listen_port | default("443") }}
+        Listen {{ install_apache_https_listen_port | default("443") }}
 </IfModule>
 
 <IfModule mod_gnutls.c>
-        Listen {{ apache_https_listen_port | default("443") }}
+        Listen {{ install_apache_https_listen_port | default("443") }}
 </IfModule>
