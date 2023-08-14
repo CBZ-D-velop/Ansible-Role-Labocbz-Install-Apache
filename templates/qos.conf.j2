@@ -1,0 +1,19 @@
+##############################
+#                            #
+# Ansible / Tower managed on #
+#                            #
+##############################
+
+<IfModule qos_module>
+   # handle connections from up to 100000 different IPs
+   QS_ClientEntries 100000
+   # allow only 50 connections per IP
+   QS_SrvMaxConnPerIP 50
+   # limit maximum number of active TCP connections limited to 256
+   MaxClients 256
+   # disables keep-alive when 180 (70%) TCP connections are occupied
+   QS_SrvMaxConnClose 180
+   # minimum request/response speed 
+   # (deny slow clients blocking the server, keeping connections open without requesting anything
+   QS_SrvMinDataRate 150 1200
+</IfModule>

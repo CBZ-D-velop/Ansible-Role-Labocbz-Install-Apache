@@ -1,0 +1,26 @@
+##############################
+#                            #
+# Ansible / Tower managed on #
+#                            #
+##############################
+
+<IfModule mod_deflate.c>
+        # Compress text, HTML, JavaScript, and CSS files
+        AddOutputFilterByType DEFLATE text/plain
+        AddOutputFilterByType DEFLATE text/html
+        AddOutputFilterByType DEFLATE application/javascript
+        AddOutputFilterByType DEFLATE text/css
+        # Disable compression for certain file types
+        SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI \.(?:exe|t?gz|zip|bz2|sit|rar)$ no-gzip dont-vary
+        # Set the minimum and maximum compression level
+        DeflateCompressionLevel 6
+        DeflateFilterNote Input instream
+        DeflateFilterNote Output outstream
+        DeflateFilterNote Ratio ratio
+        # Set the minimum size of a file that will be compressed
+        DeflateBufferSize 8096
+        DeflateMemLevel 8
+        # For proxies
+        Header append Vary User-Agent env=!dont-vary
+</IfModule>

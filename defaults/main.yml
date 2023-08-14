@@ -1,0 +1,21 @@
+---
+install_apache_https_listen_port: 443
+install_apache_http_listen_port: 80
+
+install_apache_modules:
+  - "ssl"
+  - "rewrite"
+  - "filter"
+  - "headers"
+
+install_apache_remove_all_vhosts: true
+install_apache_loglevel: "info"
+
+install_apache_enable_qos: false
+install_apache_enable_security: false
+install_apache_enable_evasive: false
+install_apache_enable_pagespeed: false
+install_apache_enable_prefork: true
+
+install_apache_security_core_version: "3.3.0"
+install_apache_security_version: "3.0.10"

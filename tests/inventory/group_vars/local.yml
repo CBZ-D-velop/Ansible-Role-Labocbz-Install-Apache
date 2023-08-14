@@ -1,0 +1,24 @@
+---
+inv_install_apache_https_listen_port: 443
+inv_install_apache_http_listen_port: 80
+
+inv_install_apache_modules:
+  - "ssl"
+  - "rewrite"
+  - "proxy"
+  - "proxy_http"
+  - "ldap"
+  - "authnz_ldap"
+  - "filter"
+  - "deflate"
+  - "headers"
+  - "proxy_wstunnel"
+
+inv_install_apache_loglevel: "info"
+inv_install_apache_remove_all_vhosts: true
+
+inv_install_apache_enable_qos: true
+inv_install_apache_enable_security: true
+inv_install_apache_enable_evasive: true
+inv_install_apache_enable_pagespeed: true
+inv_install_apache_enable_prefork: false

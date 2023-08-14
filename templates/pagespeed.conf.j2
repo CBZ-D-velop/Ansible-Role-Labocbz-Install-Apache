@@ -1,0 +1,19 @@
+##############################
+#                            #
+# Ansible / Tower managed on #
+#                            #
+##############################
+
+<IfModule pagespeed_module>
+        # Enable mod_pagespeed
+        ModPagespeed on
+        # Set the PageSpeed rewriting level
+        ModPagespeedRewriteLevel CoreFilters
+        # Enable some specific PageSpeed filters
+        # ModPagespeedDisableFilters and ModPagespeedEnableFilters
+        ModPagespeedEnableFilters rewrite_javascript,rewrite_css
+        ModPagespeedEnableFilters collapse_whitespace,elide_attributes
+        ModPagespeedEnableFilters in_place_optimize_for_browser
+        ModPagespeedEnableFilters canonicalize_javascript_libraries
+        ModPagespeedEnableFilters add_instrumentation
+</IfModule>
