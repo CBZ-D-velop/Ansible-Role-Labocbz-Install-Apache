@@ -24,15 +24,13 @@
 
 An Ansible role to install and configure Apache2 HTTP on your host.
 
-The Ansible role installs Apache2 HTTPD and configures the server along with specific modules based on customizable parameters. Administrators can customize the Apache installation by selecting the desired modules through the role's options.
+This Ansible role simplifies the process of setting up and configuring Apache2 on Debian servers. It provides the flexibility to enhance server security by enabling optional modules like mod evasive, qos, and security. You can effortlessly activate Apache modules such as "ssl," "rewrite," "filter," and "headers," with default parameter settings for a smooth configuration experience.
 
-The role offers the flexibility to enable or disable default virtual hosts and provides the option to rename these virtual hosts to include incremental values. This ensures appropriate virtual host selection in cases where the domain does not match explicitly.
+Manage virtual hosts seamlessly by importing customizable Apache2 configurations. This role also supports the creation of "blackhole" vhosts without a Servername but with an alias = "*" for improved security. If a clean slate is needed, existing vhosts can be removed, ensuring a fresh installation.
 
-To optimize server performance and enhance security, the role also includes the Mod Qos module, offering a comprehensive solution for performance and security-related challenges. Additionally, administrators can enable the ModSecurity module, a Web Application Firewall (WAF) component, through a Git repository. This further fortifies the server's security capabilities while maintaining performance efficiency.
+Additionally, the role offers advanced configuration options, including pre-configured files for headers, cookies, and mpm prefork settings. These template files can be customized to further refine your Apache2 configuration.
 
-Furthermore, the role supports the removal of all non-default virtual hosts, providing a clean slate for adding new configurations. This streamlines virtual host management and promotes a more organized server environment.
-
-In summary, the Apache2 HTTPD role simplifies the installation and configuration of Apache2, allowing administrators to tailor the installation by selecting specific modules. With the option to enable Mod Qos, enable ModSecurity via Git, and manage virtual hosts efficiently, the role provides a powerful solution for optimizing Apache2 performance and prioritizing security aspects.
+Simplify your Apache2 deployment with this Ansible role, streamlining installation, customization, and security configuration. Achieve an optimized and secure Apache2 environment without the complexities of manual setup.
 
 ## Folder structure
 

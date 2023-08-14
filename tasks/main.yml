@@ -12,6 +12,15 @@
 - name: "Configure Apache2"
   notify: "Restart Apache2"
   block:
+    - name: "Enable Apache modules"
+      notify: "Restart Apache2"
+      loop: "{{ install_apache_modules }}"
+      loop_control:
+        loop_var: module
+      community.general.apache2_module:
+        state: present
+        name: "{{ module }}"
+
     - name: "Import Apache2 confiruations files"
       loop:
         - "apache2.conf"
@@ -170,6 +179,21 @@
   when: install_apache_enable_pagespeed | default(false)
   notify: "Restart Apache2"
   block:
+    - name: "Remove potential pagespeed list"
+      block:
+        - name: "Check /etc/apt/sources.list.d/mod-pagespeed.list"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+
+        - name: "Remove /etc/apt/sources.list.d/mod-pagespeed.list"
+          when: file_check.stat.exists
+          register: output
+          changed_when: output.changed != true and output.changed != false
+          ansible.builtin.file:
+            path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+            state: absent
+
     - name: "Install ModPageSpeed"
       ansible.builtin.package:
         update_cache: true
@@ -197,15 +221,6 @@
         owner: "root"
         group: "root"
         mode: "0600"
-
-- name: "Enable Apache modules"
-  notify: "Restart Apache2"
-  loop: "{{ install_apache_modules }}"
-  loop_control:
-    loop_var: module
-  community.general.apache2_module:
-    state: present
-    name: "{{ module }}"
 
 - name: "Disable all other vhosts and clean"
   notify: "Reload Apache2"
