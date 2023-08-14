@@ -1,4 +1,4 @@
-# Ansible role: labocbz.install_apache
+# Ansible role: labocbz.install_apache_
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -24,15 +24,13 @@
 
 An Ansible role to install and configure Apache2 HTTP on your host.
 
-The Ansible role installs Apache2 HTTPD and configures the server along with specific modules based on customizable parameters. Administrators can customize the Apache installation by selecting the desired modules through the role's options.
+This Ansible role simplifies the process of setting up and configuring Apache2 on Debian servers. It provides the flexibility to enhance server security by enabling optional modules like mod evasive, qos, and security. You can effortlessly activate Apache modules such as "ssl," "rewrite," "filter," and "headers," with default parameter settings for a smooth configuration experience.
 
-The role offers the flexibility to enable or disable default virtual hosts and provides the option to rename these virtual hosts to include incremental values. This ensures appropriate virtual host selection in cases where the domain does not match explicitly.
+Manage virtual hosts seamlessly by importing customizable Apache2 configurations. This role also supports the creation of "blackhole" vhosts without a Servername but with an alias = "*" for improved security. If a clean slate is needed, existing vhosts can be removed, ensuring a fresh installation.
 
-To optimize server performance and enhance security, the role also includes the Mod Qos module, offering a comprehensive solution for performance and security-related challenges. Additionally, administrators can enable the ModSecurity module, a Web Application Firewall (WAF) component, through a Git repository. This further fortifies the server's security capabilities while maintaining performance efficiency.
+Additionally, the role offers advanced configuration options, including pre-configured files for headers, cookies, and mpm prefork settings. These template files can be customized to further refine your Apache2 configuration.
 
-Furthermore, the role supports the removal of all non-default virtual hosts, providing a clean slate for adding new configurations. This streamlines virtual host management and promotes a more organized server environment.
-
-In summary, the Apache2 HTTPD role simplifies the installation and configuration of Apache2, allowing administrators to tailor the installation by selecting specific modules. With the option to enable Mod Qos, enable ModSecurity via Git, and manage virtual hosts efficiently, the role provides a powerful solution for optimizing Apache2 performance and prioritizing security aspects.
+Simplify your Apache2 deployment with this Ansible role, streamlining installation, customization, and security configuration. Achieve an optimized and secure Apache2 environment without the complexities of manual setup.
 
 ## Folder structure
 
@@ -44,7 +42,7 @@ By default Ansible will look in each directory within a role for a main.yml file
 ├── defaults
 │   ├── main.yml  # Contains default variables for the role that can be overridden by users.
 │   └── README.md  # Contains documentation for the default variables.
-├── files
+├── filescd .git
 │   └── README.md  # Contains documentation for the files in the directory.
 ├── handlers
 │   ├── main.yml  # Contains handlers that can be called by tasks within the role.
@@ -117,29 +115,26 @@ Some vars a required to run this role:
 
 ```YAML
 ---
-apache_https_listen_port: 443
-apache_http_listen_port: 80
+install_apache_https_listen_port: 443
+install_apache_http_listen_port: 80
 
-apache_modules:
+install_apache_modules:
   - "ssl"
   - "rewrite"
   - "filter"
   - "headers"
 
-apache_enable_qos: false
-apache_qos_client_entries: "100000"
-apache_qos_srv_max_conn_per_ip: "50"
-apache_qos_max_clients: "256"
-apache_qos_srv_max_conn_close: "180"
-apache_qos_srv_min_data_rate: "150 1200"
+install_apache_remove_all_vhosts: true
+install_apache_loglevel: "info"
 
-apache_enable_default_vhosts: true
-apache_remove_all_no_default_vhosts: true
+install_apache_enable_qos: false
+install_apache_enable_security: false
+install_apache_enable_evasive: false
+install_apache_enable_pagespeed: false
+install_apache_enable_prefork: true
 
-apache_enable_security: false
-apache_security_core_version: "3.3.0"
-
-apache_ssl_files_path: "/etc/letsencrypt/live"
+install_apache_security_core_version: "3.3.0"
+install_apache_security_version: "3.0.10"
 
 ```
 
@@ -152,10 +147,10 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 ```YAML
 # From inventory
 ---
-inv_apache_https_listen_port: 443
-inv_apache_http_listen_port: 80
+inv_install_apache_https_listen_port: 443
+inv_install_apache_http_listen_port: 80
 
-inv_apache_modules:
+inv_install_apache_modules:
   - "ssl"
   - "rewrite"
   - "proxy"
@@ -167,24 +162,23 @@ inv_apache_modules:
   - "headers"
   - "proxy_wstunnel"
 
-inv_apache_enable_qos: true
-inv_apache_qos_client_entries: "100000"
-inv_apache_qos_srv_max_conn_per_ip: "50"
-inv_apache_qos_max_clients: "256"
-inv_apache_qos_srv_max_conn_close: "180"
-inv_apache_qos_srv_min_data_rate: "150 1200"
+inv_install_apache_loglevel: "info"
+inv_install_apache_remove_all_vhosts: true
 
-inv_apache_enable_security: true
-inv_apache_enable_default_vhosts: false
+inv_install_apache_enable_qos: true
+inv_install_apache_enable_security: true
+inv_install_apache_enable_evasive: true
+inv_install_apache_enable_pagespeed: true
+inv_install_apache_enable_prefork: false
 
 ```
 
 ```YAML
 # From AWX / Tower
 ---
-tower_apache_security_core_version: "3.3.0"
-tower_apache_enable_default_vhosts: true
-tower_apache_remove_all_no_default_vhosts: true
+tower_install_apache_security_core_version: "3.3.0"
+tower_install_apache_security_version: "3.0.10"
+tower_install_apache_remove_all_vhosts: true
 
 ```
 
@@ -197,19 +191,18 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
   tags:
     - "labocbz.install_apache"
   vars:
-    apache_https_listen_port: "{{ inv_apache_https_listen_port }}"
-    apache_http_listen_port: "{{ inv_apache_http_listen_port }}"
-    apache_modules: "{{ inv_apache_modules }}"
-    apache_enable_qos: "{{ inv_apache_enable_qos }}"
-    apache_qos_client_entries: "{{ inv_apache_qos_client_entries }}"
-    apache_qos_srv_max_conn_per_ip: "{{ inv_apache_qos_srv_max_conn_per_ip }}"
-    apache_qos_max_clients: "{{ inv_apache_qos_max_clients }}"
-    apache_qos_srv_max_conn_close: "{{ inv_apache_qos_srv_max_conn_close }}"
-    apache_qos_srv_min_data_rate: "{{ inv_apache_qos_srv_min_data_rate }}"
-    apache_enable_security: "{{ inv_apache_enable_security }}"
-    apache_security_core_version: "{{ tower_apache_security_core_version }}"
-    apache_enable_default_vhosts: "{{ tower_apache_enable_default_vhosts }}"
-    apache_remove_all_no_default_vhosts: "{{ tower_apache_remove_all_no_default_vhosts }}"
+    install_apache_https_listen_port: "{{ inv_install_apache_https_listen_port }}"
+    install_apache_http_listen_port: "{{ inv_install_apache_http_listen_port }}"
+    install_apache_modules: "{{ inv_install_apache_modules }}"
+    install_apache_enable_qos: "{{ inv_install_apache_enable_qos }}"
+    install_apache_enable_security: "{{ inv_install_apache_enable_security }}"
+    install_apache_security_core_version: "{{ tower_install_apache_security_core_version }}"
+    install_apache_remove_all_vhosts: "{{ tower_install_apache_remove_all_vhosts }}"
+    install_apache_loglevel: "{{ inv_install_apache_loglevel }}"
+    install_apache_security_version: "{{ tower_install_apache_security_version }}"
+    install_apache_enable_evasive: "{{ inv_install_apache_enable_evasive }}"
+    install_apache_enable_pagespeed: "{{ inv_install_apache_enable_pagespeed }}"
+    install_apache_enable_prefork: "{{ inv_install_apache_enable_prefork }}"
   ansible.builtin.include_role:
     name: "labocbz.install_apache"
 ```
@@ -226,7 +219,7 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2023-04-18: Defaults vhosts
 
 * All vhosts are disabled on install, because you have to add any conf after the install.
-* If you perform a reinstall, you can call the add_apache_confs to re import removed conf.
+* If you perform a reinstall, you can call the add_install_apache_confs to re import removed conf.
 * Default vhost (HTTP/HTTPS) can be enabled or disabled on install, in order to have a minimal blach hole for all unmatched domains.
 
 ### 2023-04-19: Clean others vhosts
@@ -238,6 +231,20 @@ Here you can put your change to keep a trace of your work and decisions.
 * SSL/TLS Materials are not handled by the role
 * Certs/CA have to be installed previously/after this role use
 
+### 2023-08-14: Remove all vhosts and secure
+
+* Role doesn't enable default vhost
+* Role can remove all vhosts if needed
+* New configuration for Apache: all directories are now blocked, no indexes, etc
+* New configuration for Apache: added at the end of file, after all vhosts and other conf inputs, 2 vhost for all unmacted domains (blackhole) with a 401 return
+* Role can change prefork to event for MPM
+* Role handle unable/disable confs, so reinstall is possible
+* Fix real use of modSecurity ...
+* Add modEvasive
+* Add configuration tunning in J2 file for modules (headers, deflate, modsecurity etc)
+* Fine tuning is possible, upgrades are possible to but configurations look great
+* You can add vars in vars/main.yml for mods tunning ?
+
 ## Authors
 
 * Lord Robin Crombez
@@ -246,3 +253,4 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * [Ansible role documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html)
 * [Ansible Molecule documentation](https://molecule.readthedocs.io/)
+* [Defend Against DoS & DDoS on Apache With mod_evasive](https://phoenixnap.com/kb/apache-mod-evasive)

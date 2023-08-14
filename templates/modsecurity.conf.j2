@@ -255,7 +255,7 @@ SecAuditLogParts ABCEFHJKZ
 # assumes that you will use the audit log only ocassionally.
 #
 SecAuditLogType Serial
-SecAuditLog /var/log/modsec_audit.log
+#SecAuditLog /var/log/modsec_audit.log
 
 # Specify the path for concurrent audit logging.
 #SecAuditLogStorageDir /opt/modsecurity/var/audit/
@@ -280,8 +280,9 @@ SecCookieFormat 0
 # to properly map encoded data to your language. Properly setting
 # these directives helps to reduce false positives and negatives.
 #
-SecUnicodeMapFile unicode.mapping 20127
+#SecUnicodeMapFile unicode.mapping 20127
 
+SecUnicodeMapFile /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping 20127
 # Improve the quality of ModSecurity by sharing information about your
 # current ModSecurity version and dependencies versions.
 # The following information will be shared: ModSecurity version,

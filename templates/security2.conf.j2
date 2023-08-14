@@ -12,7 +12,7 @@
 	# Keeping your local configuration in that directory
 	# will allow for an easy upgrade of THIS file and
 	# make your life easier
-    #IncludeOptional /etc/modsecurity/*.conf
-	IncludeOptional /etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}/crs-setup.conf
-	IncludeOptional /etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}/rules/*.conf
+	IncludeOptional /etc/apache2/mods-available/modsecurity.conf
+	IncludeOptional /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf
+	IncludeOptional /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/rules/*.conf
 </IfModule>

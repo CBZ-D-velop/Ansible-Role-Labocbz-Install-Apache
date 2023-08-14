@@ -1,16 +1,41 @@
 ---
+- name: "Remove potential pagespeed list"
+  block:
+    - name: "Check /etc/apt/sources.list.d/mod-pagespeed.list"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+
+    - name: "Remove /etc/apt/sources.list.d/mod-pagespeed.list"
+      when: file_check.stat.exists
+      register: output
+      changed_when: output.changed != true and output.changed != false
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+        state: absent
+
 - name: "Install packages"
   notify: "Enable and start Apache2"
   ansible.builtin.package:
     update_cache: true
     name:
       - "apache2"
+      - "apache2-utils"
       - "software-properties-common"
       - "certbot"
 
 - name: "Configure Apache2"
   notify: "Restart Apache2"
   block:
+    - name: "Enable Apache modules"
+      notify: "Restart Apache2"
+      loop: "{{ install_apache_modules }}"
+      loop_control:
+        loop_var: module
+      community.general.apache2_module:
+        state: present
+        name: "{{ module }}"
+
     - name: "Import Apache2 confiruations files"
       loop:
         - "apache2.conf"
@@ -24,24 +49,24 @@
         group: "root"
         mode: "0600"
 
-    - name: "Prepare folders"
-      loop:
-        - "{{ apache_ssl_files_path }}"
-      loop_control:
-        loop_var: file
-      register: output
-      changed_when: output.size <= 0
+    - name: "Check /var/www/html/blackhole directory"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/var/www/html/blackhole"
+
+    - name: "Create /var/www/html/blackhole directory"
+      when: not file_check.stat.exists
       ansible.builtin.file:
-        path: "{{ file }}"
+        path: "/var/www/html/blackhole"
         state: directory
         recurse: yes
-        group: "www-data"
-        owner: "www-data"
+        owner: "root"
+        group: "root"
         mode: "0600"
 
 - name: "Install and configure QOS"
   notify: "Restart Apache2"
-  when: apache_enable_qos | default(false)
+  when: install_apache_enable_qos | default(false)
   block:
     - name: "Install libapache2-mod-qos"
       ansible.builtin.package:
@@ -62,9 +87,9 @@
         state: present
         name: "qos"
 
-- name: "Install and configure Modsecurity"
+- name: "Install and configure ModSecurity"
   notify: "Restart Apache2"
-  when: apache_enable_security | default(false)
+  when: install_apache_enable_security | default(false)
   block:
     - name: "Install libapache2-mod-security2"
       ansible.builtin.package:
@@ -72,7 +97,7 @@
         name:
           - "libapache2-mod-security2"
 
-    - name: "Import Modsecurity confiruations files"
+    - name: "Import ModSecurity confiruations files"
       loop:
         - { src: "templates/modsecurity.conf.j2", dest: "/etc/apache2/mods-available/modsecurity.conf"}
         - { src: "templates/security2.conf.j2", dest: "/etc/apache2/mods-available/security2.conf"}
@@ -85,15 +110,15 @@
         group: "root"
         mode: "0600"
 
-    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }} directory"
+    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
       register: file_check
       ansible.builtin.stat:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
 
     - name: "Create /etc/apache2/modsecurity-crs directory"
       when: not file_check.stat.exists
       ansible.builtin.file:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
         state: directory
         recurse: yes
         owner: "root"
@@ -103,13 +128,21 @@
     - name: "Dowload coreruleset by clone its repository"
       ansible.builtin.git:
         repo: "https://github.com/coreruleset/coreruleset"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}"
-        version: "v{{ apache_security_core_version }}"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
+        version: "v{{ install_apache_security_core_version }}"
 
     - name: "Import CRS confiruations files"
       ansible.builtin.template:
         src: "templates/crs-setup.conf.j2"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ apache_security_core_version }}/crs-setup.conf"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+
+    - name: "Import unicode.mapping file from github"
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v{{ install_apache_security_version }}/unicode.mapping"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping"
         owner: "root"
         group: "root"
         mode: "0600"
@@ -119,77 +152,273 @@
         state: present
         name: "security2"
 
-- name: "Enable Apache modules"
+- name: "Install and configure ModEvasive"
   notify: "Restart Apache2"
-  loop: "{{ apache_modules }}"
-  loop_control:
-    loop_var: module
-  community.general.apache2_module:
-    state: present
-    name: "{{ module }}"
-
-- name: "Rename and Enable vhosts"
-  notify: "Reload Apache2"
+  when: install_apache_enable_evasive | default(false)
   block:
-    - name: "Get the state of the default SSL vhost"
-      ansible.builtin.stat:
-        path: "/etc/apache2/sites-available/default-ssl.conf"
-      register: default_ssl_conf
+    - name: "Install libapache2-mod-evasive"
+      ansible.builtin.package:
+        update_cache: true
+        name:
+          - "libapache2-mod-evasive"
 
-    - name: "Rename default SSL conf file"
-      when: default_ssl_conf.stat.exists
-      block:
-        - name: "Copy default SSL file to a better place / name"
-          ansible.builtin.copy:
-            src: "/etc/apache2/sites-available/default-ssl.conf"
-            dest: "/etc/apache2/sites-available/000-default-SSL.conf"
-            remote_src: yes
-            owner: "root"
-            group: "root"
-            mode: "0600"
-
-        - name: "Remove default SSL file"
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-available/default-ssl.conf"
-            state: absent
-
-    - name: "Disable all other vhosts and clean"
-      when: apache_remove_all_no_default_vhosts | default(false)
-      block:
-        - name: "Find all files in available folder"
-          register: vhosts
-          ansible.builtin.find:
-            paths: "/etc/apache2/sites-available"
-
-        - name: "Remove all other vhosts than defaults"
-          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
-          loop: "{{ vhosts.files }}"
-          loop_control:
-            loop_var: host
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-available/{{ host }}"
-            state: absent
-
-        - name: "Remove all vhosts"
-          loop: "{{ vhosts.files + ['000-default.conf', '000-default-SSL.conf'] }}"
-          when: not (host == "000-default-SSL.conf" or host == "000-default.conf")
-          loop_control:
-            loop_var: host
-          ansible.builtin.file:
-            path: "/etc/apache2/sites-enabled/{{ host }}"
-            state: absent
-
-    - name: "Enable defaults vhosts if enabled"
-      when: apache_enable_default_vhosts | default(false)
-      loop:
-        - "000-default.conf"
-        - "000-default-SSL.conf"
-      loop_control:
-        loop_var: vhost
-      ansible.builtin.file:
-        src: "/etc/apache2/sites-available/{{ vhost }}"
-        dest: "/etc/apache2/sites-enabled/{{ vhost }}"
-        state: link
+    - name: "Import ModEvasive confiruation file"
+      ansible.builtin.template:
+        src: "templates/evasive.conf.j2"
+        dest: "/etc/apache2/mods-available/evasive.conf"
         owner: "root"
         group: "root"
         mode: "0600"
+
+- name: "Import Headers confiruation file"
+  when: '"headers" in install_apache_modules'
+  notify: "Restart Apache2"
+  ansible.builtin.template:
+    src: "templates/headers.conf.j2"
+    dest: "/etc/apache2/mods-available/headers.conf"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
+- name: "Import Deflate confiruation file"
+  when: '"deflate" in install_apache_modules'
+  notify: "Restart Apache2"
+  ansible.builtin.template:
+    src: "templates/deflate.conf.j2"
+    dest: "/etc/apache2/mods-available/deflate.conf"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
+- name: "Install ModPageSpeed"
+  when: install_apache_enable_pagespeed | default(false)
+  notify: "Restart Apache2"
+  block:
+    - name: "Install ModPageSpeed"
+      ansible.builtin.package:
+        update_cache: true
+        deb: "https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb"
+
+    - name: "Import ModPageSpeed confiruation file"
+      ansible.builtin.template:
+        src: "templates/pagespeed.conf.j2"
+        dest: "/etc/apache2/mods-enabled/pagespeed.conf"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+
+    - name: "Check /var/www/html/blackhole/mod_pagespeed"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/var/www/html/blackhole/mod_pagespeed"
+
+    - name: "Create /var/www/html/blackhole/mod_pagespeed"
+      when: not file_check.stat.exists
+      ansible.builtin.file:
+        path: "/var/www/html/blackhole/mod_pagespeed"
+        state: directory
+        recurse: yes
+        owner: "root"
+        group: "root"
+        mode: "0600"
+
+- name: "Disable all other vhosts and clean"
+  notify: "Reload Apache2"
+  when: install_apache_remove_all_vhosts | default(false)
+  block:
+    - name: "Find all files in available folder"
+      register: vhosts
+      ansible.builtin.find:
+        paths: "/etc/apache2/sites-available"
+
+    - name: "Remove all other vhosts"
+      loop: "{{ vhosts.files }}"
+      loop_control:
+        loop_var: host
+      ansible.builtin.file:
+        path: "{{ host.path }}"
+        state: absent
+
+    - name: "Find all files in enabled folder"
+      register: vhosts
+      ansible.builtin.find:
+        paths: "/etc/apache2/sites-enabled"
+        file_type: link
+
+    - name: "Remove all other vhosts"
+      loop: "{{ vhosts.files }}"
+      loop_control:
+        loop_var: host
+      ansible.builtin.file:
+        path: "{{ host.path }}"
+        state: absent
+
+- name: "Clear all enabled conf for all unwanted modules"
+  notify: "Restart Apache2"
+  block:
+    - name: "Clear Headers"
+      when: not ('"headers" in install_apache_modules')
+      block:
+        - name: "Check /etc/apache2/mods-enabled/headers.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/headers.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/headers.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/headers.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/headers.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/headers.load"
+            state: absent
+
+    - name: "Clear Deflate.conf"
+      when: not ('"deflate.conf" in install_apache_modules')
+      block:
+        - name: "Check /etc/apache2/mods-enabled/deflate.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/deflate.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/deflate.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/deflate.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/deflate.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/deflate.load"
+            state: absent
+
+    - name: "Clear ModEvasive"
+      when: not (install_apache_enable_evasive | default(false) )
+      block:
+        - name: "Check /etc/apache2/mods-enabled/evasive.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/evasive.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/evasive.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/evasive.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/evasive.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/evasive.load"
+            state: absent
+
+    - name: "Clear ModPageSpeed"
+      when: not (install_apache_enable_pagespeed | default(false) )
+      block:
+        - name: "Check /etc/apache2/mods-enabled/pagespeed.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/pagespeed.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/pagespeed.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/pagespeed.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/pagespeed.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/pagespeed.load"
+            state: absent
+
+    - name: "Clear ModSecurity"
+      when: not (install_apache_enable_security | default(false) )
+      block:
+        - name: "Check /etc/apache2/mods-enabled/modsecurity.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/modsecurity.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/modsecurity.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/modsecurity.conf"
+            state: absent
+
+        - name: "Check /etc/apache2/mods-enabled/security2.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/security2.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/security2.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/security2.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/security2.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/security2.load"
+            state: absent
+
+    - name: "Clear ModQos"
+      when: not (install_apache_enable_qos | default(false) )
+      block:
+        - name: "Check /etc/apache2/mods-enabled/qos.conf"
+          register: file_check
+          ansible.builtin.stat:
+            path: "/etc/apache2/mods-enabled/qos.conf"
+
+        - name: "Remove /etc/apache2/mods-enabled/qos.conf"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/qos.conf"
+            state: absent
+
+        - name: "Remove /etc/apache2/mods-enabled/qos.load"
+          when: file_check.stat.exists
+          ansible.builtin.file:
+            path: "/etc/apache2/mods-enabled/qos.load"
+            state: absent
+
+- name: "Configure MPM PREFORK"
+  when: install_apache_enable_prefork | default(false)
+  notify: "Restart Apache2"
+  block:
+    - name: "Disable MPM EVENT module"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: "a2dismod mpm_event"
+
+    - name: "Enable MPM PREFORK module"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: "a2enmod mpm_prefork"
+
+    - name: "Import MPM PREFORK confiruation file"
+      ansible.builtin.template:
+        src: "templates/mpm_prefork.conf.j2"
+        dest: "/etc/apache2/mods-available/mpm_prefork.conf"
+        owner: "root"
+        group: "root"
+        mode: "0600"
+
+- name: "Configure MPM EVENT"
+  notify: "Restart Apache2"
+  when: not (install_apache_enable_prefork | default(false))
+  block:
+    - name: "Disable MPM PREFORK module"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: "a2dismod mpm_prefork"
+
+    - name: "Enable MPM EVENT module"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: "a2enmod mpm_event"
