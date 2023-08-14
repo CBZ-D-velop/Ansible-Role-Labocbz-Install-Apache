@@ -117,7 +117,6 @@ Some vars a required to run this role:
 
 ```YAML
 ---
----
 install_apache_https_listen_port: 443
 install_apache_http_listen_port: 80
 
