@@ -1,4 +1,19 @@
 ---
+- name: "Remove potential pagespeed list"
+  block:
+    - name: "Check /etc/apt/sources.list.d/mod-pagespeed.list"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+
+    - name: "Remove /etc/apt/sources.list.d/mod-pagespeed.list"
+      when: file_check.stat.exists
+      register: output
+      changed_when: output.changed != true and output.changed != false
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+        state: absent
+
 - name: "Install packages"
   notify: "Enable and start Apache2"
   ansible.builtin.package:
@@ -179,21 +194,6 @@
   when: install_apache_enable_pagespeed | default(false)
   notify: "Restart Apache2"
   block:
-    - name: "Remove potential pagespeed list"
-      block:
-        - name: "Check /etc/apt/sources.list.d/mod-pagespeed.list"
-          register: file_check
-          ansible.builtin.stat:
-            path: "/etc/apt/sources.list.d/mod-pagespeed.list"
-
-        - name: "Remove /etc/apt/sources.list.d/mod-pagespeed.list"
-          when: file_check.stat.exists
-          register: output
-          changed_when: output.changed != true and output.changed != false
-          ansible.builtin.file:
-            path: "/etc/apt/sources.list.d/mod-pagespeed.list"
-            state: absent
-
     - name: "Install ModPageSpeed"
       ansible.builtin.package:
         update_cache: true
