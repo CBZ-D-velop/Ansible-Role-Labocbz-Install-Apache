@@ -222,6 +222,21 @@
         group: "root"
         mode: "0600"
 
+- name: "Remove potential pagespeed list"
+  block:
+    - name: "Check /etc/apt/sources.list.d/mod-pagespeed.list"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+
+    - name: "Remove /etc/apt/sources.list.d/mod-pagespeed.list"
+      when: file_check.stat.exists
+      register: output
+      changed_when: output.changed != true and output.changed != false
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/mod-pagespeed.list"
+        state: absent
+
 - name: "Disable all other vhosts and clean"
   notify: "Reload Apache2"
   when: install_apache_remove_all_vhosts | default(false)
