@@ -13,6 +13,7 @@ inv_install_apache_modules:
   - "deflate"
   - "headers"
   - "proxy_wstunnel"
+  - "auth_digest"
 
 inv_install_apache_loglevel: "info"
 inv_install_apache_remove_all_vhosts: true
