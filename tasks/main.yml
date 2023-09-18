@@ -396,11 +396,6 @@
       changed_when: output.rc != 0
       ansible.builtin.command: "a2dismod mpm_event"
 
-    - name: "Enable MPM PREFORK module"
-      register: output
-      changed_when: output.rc != 0
-      ansible.builtin.command: "a2enmod mpm_prefork"
-
     - name: "Import MPM PREFORK confiruation file"
       ansible.builtin.template:
         src: "templates/mpm_prefork.conf.j2"
@@ -408,6 +403,11 @@
         owner: "root"
         group: "root"
         mode: "0600"
+
+    - name: "Enable MPM PREFORK module"
+      register: output
+      changed_when: output.rc != 0
+      ansible.builtin.command: "a2enmod mpm_prefork"
 
 - name: "Configure MPM EVENT"
   notify: "Restart Apache2"
@@ -417,8 +417,3 @@
       register: output
       changed_when: output.rc != 0
       ansible.builtin.command: "a2dismod mpm_prefork"
-
-    - name: "Enable MPM EVENT module"
-      register: output
-      changed_when: output.rc != 0
-      ansible.builtin.command: "a2enmod mpm_event"

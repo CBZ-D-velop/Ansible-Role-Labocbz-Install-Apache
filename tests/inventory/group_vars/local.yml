@@ -21,4 +21,4 @@ inv_install_apache_enable_qos: true
 inv_install_apache_enable_security: true
 inv_install_apache_enable_evasive: true
 inv_install_apache_enable_pagespeed: true
-inv_install_apache_enable_prefork: false
+inv_install_apache_enable_prefork: true
