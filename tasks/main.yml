@@ -17,7 +17,7 @@
 - name: "Install packages"
   notify: "Enable and start Apache2"
   ansible.builtin.package:
-    update_cache: false
+    update_cache: true
     name:
       - "apache2"
       - "apache2-utils"
@@ -70,7 +70,7 @@
   block:
     - name: "Install libapache2-mod-qos"
       ansible.builtin.package:
-        update_cache: false
+        update_cache: true
         name:
           - "libapache2-mod-qos"
 
@@ -93,7 +93,7 @@
   block:
     - name: "Install libapache2-mod-security2"
       ansible.builtin.package:
-        update_cache: false
+        update_cache: true
         name:
           - "libapache2-mod-security2"
 
@@ -158,7 +158,7 @@
   block:
     - name: "Install libapache2-mod-evasive"
       ansible.builtin.package:
-        update_cache: false
+        update_cache: true
         name:
           - "libapache2-mod-evasive"
 
@@ -196,7 +196,7 @@
   block:
     - name: "Install ModPageSpeed"
       ansible.builtin.package:
-        update_cache: false
+        update_cache: true
         deb: "https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb"
 
     - name: "Import ModPageSpeed confiruation file"
