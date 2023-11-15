@@ -273,11 +273,11 @@ IncludeOptional sites-enabled/*.conf
                 # Redirect all HTTP traffic to HTTPS
                 RewriteEngine On
                 RewriteCond %{HTTPS} off
-                RewriteRule ^(.*)$ https://%{HTTP_HOST}:{{ add_apache_confs_https_listen_port }}%{REQUEST_URI} [L,R=301]
+                RewriteRule ^(.*)$ https://%{HTTP_HOST}:{{ install_apache_http_listen_port }}%{REQUEST_URI} [L,R=301]
 
                 RewriteEngine On
                 RewriteCond %{HTTP_HOST} !^%{HTTP_HOST}$ [NC]
-                RewriteRule ^(.*)$ http://%{HTTP_HOST}:{{ add_apache_confs_http_listen_port }}/$1 [L,R=301]
+                RewriteRule ^(.*)$ http://%{HTTP_HOST}:{{ install_apache_https_listen_port }}/$1 [L,R=301]
         </IfModule>
 
 </VirtualHost>
