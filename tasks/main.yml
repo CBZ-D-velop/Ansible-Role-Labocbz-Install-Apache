@@ -126,6 +126,7 @@
         mode: "0600"
 
     - name: "Dowload coreruleset by clone its repository"
+      when: not file_check.stat.exists
       ansible.builtin.git:
         repo: "https://github.com/coreruleset/coreruleset"
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
@@ -432,3 +433,18 @@
       register: output
       changed_when: output.rc != 0
       ansible.builtin.command: "a2dismod mpm_prefork"
+
+- name: "Remove /var/www/html/index.html file"
+  block:
+    - name: "Check /var/www/html/index.html"
+      register: file_check
+      ansible.builtin.stat:
+        path: "/var/www/html/index.html"
+
+    - name: "Remove /var/www/html/index.html"
+      when: file_check.stat.exists
+      register: output
+      changed_when: output.changed != true and output.changed != false
+      ansible.builtin.file:
+        path: "/var/www/html/index.html"
+        state: absent

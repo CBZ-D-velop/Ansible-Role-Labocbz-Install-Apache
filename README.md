@@ -252,6 +252,11 @@ Here you can put your change to keep a trace of your work and decisions.
 * Molecule now use custom Docker image in CI/CD by env vars
 * New CICD with needs and optimization
 
+### 2023-11-15: Redirect and index
+
+* Defautl conf redirection based on %{SERVER_PORT}
+* Removed the /var/www/html/index.html file
+
 ## Authors
 
 * Lord Robin Crombez

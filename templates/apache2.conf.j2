@@ -245,7 +245,7 @@ IncludeOptional sites-enabled/*.conf
         ServerAlias *
         Redirect 403 /
         ServerSignature Off
-        DocumentRoot /var/www/html
+        DocumentRoot /var/www/html/blackhole
 
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
@@ -273,11 +273,11 @@ IncludeOptional sites-enabled/*.conf
                 # Redirect all HTTP traffic to HTTPS
                 RewriteEngine On
                 RewriteCond %{HTTPS} off
-                RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+                RewriteRule ^(.*)$ https://%{HTTP_HOST}:%{SERVER_PORT}%{REQUEST_URI} [L,R=301]
 
                 RewriteEngine On
                 RewriteCond %{HTTP_HOST} !^%{HTTP_HOST}$ [NC]
-                RewriteRule ^(.*)$ http://%{HTTP_HOST}/$1 [L,R=301]
+                RewriteRule ^(.*)$ http://%{HTTP_HOST}:%{SERVER_PORT}/$1 [L,R=301]
         </IfModule>
 
 </VirtualHost>
@@ -288,7 +288,7 @@ IncludeOptional sites-enabled/*.conf
         ServerAlias *
         Redirect 403 /
         ServerSignature Off
-        DocumentRoot /var/www/html
+        DocumentRoot /var/www/html/blackhole
 
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
