@@ -261,6 +261,10 @@ IncludeOptional sites-enabled/*.conf
         {% if install_apache_enable_security | default(false) %}
         <IfModule security2_module>
                 SecAuditLog /var/www/html/blackhole/modsec_audit.log
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABCFHZ 
+                SecAuditLogType concurrent 
+                SecAuditLogRelevantStatus ^(?:5|4(?!04))
         </IfModule>
         {% endif %}
         {% if install_apache_enable_pagespeed | default(false) %}
@@ -301,6 +305,10 @@ IncludeOptional sites-enabled/*.conf
         {% if install_apache_enable_security | default(false) %}
         <IfModule security2_module>
                 SecAuditLog /var/www/html/blackhole/modsec_audit.log
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABCFHZ 
+                SecAuditLogType concurrent 
+                SecAuditLogRelevantStatus ^(?:5|4(?!04))
         </IfModule>
         {% endif %}
         {% if install_apache_enable_pagespeed | default(false) %}
