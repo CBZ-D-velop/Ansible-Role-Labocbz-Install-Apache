@@ -12,9 +12,9 @@
     # MaxRequestWorkers: maximum number of server processes allowed to start
     # MaxConnectionsPerChild: maximum number of requests a server process serves
 
-    StartServers            25
-    MinSpareServers         25
-    MaxSpareServers         50
-    MaxRequestWorkers       250
-    MaxConnectionsPerChild  25
+    StartServers            1
+    MinSpareServers         3
+    MaxSpareServers         3
+    MaxRequestWorkers       20 # 512 MB / 20 MB = 25.6
+    MaxConnectionsPerChild  5000
 </IfModule>
