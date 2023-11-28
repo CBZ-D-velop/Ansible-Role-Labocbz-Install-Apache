@@ -249,8 +249,9 @@ IncludeOptional sites-enabled/*.conf
 
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
+        SetEnvIf Request_Method OPTIONS blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
-        CustomLog /var/www/html/blackhole/access.log combined
+        CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
         {% if install_apache_enable_evasive | default(false) %}
         <IfModule mod_evasive20.c>
@@ -292,8 +293,9 @@ IncludeOptional sites-enabled/*.conf
 
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
+        SetEnvIf Request_Method OPTIONS blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
-        CustomLog /var/www/html/blackhole/access.log combined
+        CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
         {% if install_apache_enable_evasive | default(false) %}
         <IfModule mod_evasive20.c>
