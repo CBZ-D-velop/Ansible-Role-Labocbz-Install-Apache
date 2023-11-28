@@ -257,6 +257,11 @@ Here you can put your change to keep a trace of your work and decisions.
 * Defautl conf redirection based on %{SERVER_PORT}
 * Removed the /var/www/html/index.html file
 
+### 2023-11-28: Logs and Redirect
+
+* Fix the redirection
+* Add ENV for no log
+
 ## Authors
 
 * Lord Robin Crombez
