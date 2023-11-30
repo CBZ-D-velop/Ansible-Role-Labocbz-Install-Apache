@@ -136,6 +136,12 @@ install_apache_enable_prefork: true
 install_apache_security_core_version: "3.3.0"
 install_apache_security_version: "3.0.10"
 
+install_apache_mpm_start_servers: 1
+install_apache_mpm_min_spare_servers: 3
+install_apache_mpm_max_spare_servers: 3
+install_apache_mpm_max_request_workers: 20 # 512 MB / 20 MB = 25.6
+install_apache_mpm_max_connections_per_child: 5000
+
 ```
 
 The best way is to modify these vars by copy the ./default/main.yml file into the ./vars and edit with your personnals requirements.
@@ -261,6 +267,10 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * Fix the redirection
 * Add ENV for no log
+
+### 2023-11-29: MPM custom
+
+* You can now custom the mpm module
 
 ## Authors
 
