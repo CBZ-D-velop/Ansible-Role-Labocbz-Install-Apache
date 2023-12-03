@@ -250,6 +250,7 @@ IncludeOptional sites-enabled/*.conf
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
         SetEnvIf Request_Method OPTIONS blackhole-log
+        SetEnvIf Request_URI "^/$" blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
         CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
@@ -294,6 +295,7 @@ IncludeOptional sites-enabled/*.conf
         # Log ERROR and ACCES handling
         LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
         SetEnvIf Request_Method OPTIONS blackhole-log
+        SetEnvIf Request_URI "^/$" blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
         CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
