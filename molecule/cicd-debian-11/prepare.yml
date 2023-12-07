@@ -36,8 +36,8 @@
     #  ansible.builtin.copy:
     #    src: "../../tests/certs/{{ bundle.name }}.zip"
     #    dest: "/tmp/{{ bundle.name }}.zip"
-    #    owner: "root"
-    #    group: "root"
+    #    owner: "www-data"
+    #    group: "www-data"
     #    mode: 0700
 
     #- name: "Include labocbz.add_certificates"

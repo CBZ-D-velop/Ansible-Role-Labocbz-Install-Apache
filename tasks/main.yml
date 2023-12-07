@@ -45,8 +45,8 @@
       ansible.builtin.template:
         src: "templates/{{ file }}.j2"
         dest: "/etc/apache2/{{ file }}"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Check /var/www/html/blackhole directory"
@@ -60,8 +60,8 @@
         path: "/var/www/html/blackhole"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
 - name: "Install and configure QOS"
@@ -78,8 +78,8 @@
       ansible.builtin.template:
         src: "templates/qos.conf.j2"
         dest: "/etc/apache2/mods-available/qos.conf"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Enable Apache Qos module"
@@ -106,8 +106,8 @@
       ansible.builtin.template:
         src: "{{ file.src }}"
         dest: "{{ file.dest }}"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
@@ -121,8 +121,8 @@
         path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Dowload coreruleset by clone its repository"
@@ -136,16 +136,16 @@
       ansible.builtin.template:
         src: "templates/crs-setup.conf.j2"
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Import unicode.mapping file from github"
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v{{ install_apache_security_version }}/unicode.mapping"
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Enable Apache2 Security module"
@@ -167,8 +167,8 @@
       ansible.builtin.template:
         src: "templates/evasive.conf.j2"
         dest: "/etc/apache2/mods-available/evasive.conf"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
 - name: "Import Headers confiruation file"
@@ -177,8 +177,8 @@
   ansible.builtin.template:
     src: "templates/headers.conf.j2"
     dest: "/etc/apache2/mods-available/headers.conf"
-    owner: "root"
-    group: "root"
+    owner: "www-data"
+    group: "www-data"
     mode: "0600"
 
 - name: "Import Deflate confiruation file"
@@ -187,8 +187,8 @@
   ansible.builtin.template:
     src: "templates/deflate.conf.j2"
     dest: "/etc/apache2/mods-available/deflate.conf"
-    owner: "root"
-    group: "root"
+    owner: "www-data"
+    group: "www-data"
     mode: "0600"
 
 - name: "Install ModPageSpeed"
@@ -204,8 +204,8 @@
       ansible.builtin.template:
         src: "templates/pagespeed.conf.j2"
         dest: "/etc/apache2/mods-enabled/pagespeed.conf"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Check /var/www/html/blackhole/mod_pagespeed"
@@ -219,8 +219,8 @@
         path: "/var/www/html/blackhole/mod_pagespeed"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
 - name: "Remove potential pagespeed list"
@@ -416,8 +416,8 @@
       ansible.builtin.template:
         src: "templates/mpm_prefork.conf.j2"
         dest: "/etc/apache2/mods-available/mpm_prefork.conf"
-        owner: "root"
-        group: "root"
+        owner: "www-data"
+        group: "www-data"
         mode: "0600"
 
     - name: "Enable MPM PREFORK module"
