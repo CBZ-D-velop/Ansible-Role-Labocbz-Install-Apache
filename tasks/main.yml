@@ -45,9 +45,9 @@
       ansible.builtin.template:
         src: "templates/{{ file }}.j2"
         dest: "/etc/apache2/{{ file }}"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Check /var/www/html/blackhole directory"
       register: file_check
@@ -60,9 +60,9 @@
         path: "/var/www/html/blackhole"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
 - name: "Install and configure QOS"
   notify: "Restart Apache2"
@@ -78,9 +78,9 @@
       ansible.builtin.template:
         src: "templates/qos.conf.j2"
         dest: "/etc/apache2/mods-available/qos.conf"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Enable Apache Qos module"
       community.general.apache2_module:
@@ -106,9 +106,9 @@
       ansible.builtin.template:
         src: "{{ file.src }}"
         dest: "{{ file.dest }}"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
       register: file_check
@@ -121,9 +121,9 @@
         path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Dowload coreruleset by clone its repository"
       when: not file_check.stat.exists
@@ -136,17 +136,17 @@
       ansible.builtin.template:
         src: "templates/crs-setup.conf.j2"
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Import unicode.mapping file from github"
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v{{ install_apache_security_version }}/unicode.mapping"
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Enable Apache2 Security module"
       community.general.apache2_module:
@@ -167,9 +167,9 @@
       ansible.builtin.template:
         src: "templates/evasive.conf.j2"
         dest: "/etc/apache2/mods-available/evasive.conf"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
 - name: "Import Headers confiruation file"
   when: '"headers" in install_apache_modules'
@@ -177,9 +177,9 @@
   ansible.builtin.template:
     src: "templates/headers.conf.j2"
     dest: "/etc/apache2/mods-available/headers.conf"
-    owner: "root"
-    group: "root"
-    mode: "0600"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0776"
 
 - name: "Import Deflate confiruation file"
   when: '"deflate" in install_apache_modules'
@@ -187,9 +187,9 @@
   ansible.builtin.template:
     src: "templates/deflate.conf.j2"
     dest: "/etc/apache2/mods-available/deflate.conf"
-    owner: "root"
-    group: "root"
-    mode: "0600"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0776"
 
 - name: "Install ModPageSpeed"
   when: install_apache_enable_pagespeed | default(false)
@@ -204,9 +204,9 @@
       ansible.builtin.template:
         src: "templates/pagespeed.conf.j2"
         dest: "/etc/apache2/mods-enabled/pagespeed.conf"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Check /var/www/html/blackhole/mod_pagespeed"
       register: file_check
@@ -219,9 +219,9 @@
         path: "/var/www/html/blackhole/mod_pagespeed"
         state: directory
         recurse: yes
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
 - name: "Remove potential pagespeed list"
   block:
@@ -416,9 +416,9 @@
       ansible.builtin.template:
         src: "templates/mpm_prefork.conf.j2"
         dest: "/etc/apache2/mods-available/mpm_prefork.conf"
-        owner: "root"
-        group: "root"
-        mode: "0600"
+        owner: "www-data"
+        group: "www-data"
+        mode: "0776"
 
     - name: "Enable MPM PREFORK module"
       register: output
