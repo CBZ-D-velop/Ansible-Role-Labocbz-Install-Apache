@@ -47,7 +47,7 @@
         dest: "/etc/apache2/{{ file }}"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Check /var/www/html/blackhole directory"
       register: file_check
@@ -62,7 +62,7 @@
         recurse: yes
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
 - name: "Install and configure QOS"
   notify: "Restart Apache2"
@@ -80,7 +80,7 @@
         dest: "/etc/apache2/mods-available/qos.conf"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Enable Apache Qos module"
       community.general.apache2_module:
@@ -108,7 +108,7 @@
         dest: "{{ file.dest }}"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
       register: file_check
@@ -123,7 +123,7 @@
         recurse: yes
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Dowload coreruleset by clone its repository"
       when: not file_check.stat.exists
@@ -138,7 +138,7 @@
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Import unicode.mapping file from github"
       ansible.builtin.get_url:
@@ -146,7 +146,7 @@
         dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Enable Apache2 Security module"
       community.general.apache2_module:
@@ -169,7 +169,7 @@
         dest: "/etc/apache2/mods-available/evasive.conf"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
 - name: "Import Headers confiruation file"
   when: '"headers" in install_apache_modules'
@@ -179,7 +179,7 @@
     dest: "/etc/apache2/mods-available/headers.conf"
     owner: "www-data"
     group: "www-data"
-    mode: "0600"
+    mode: "0776"
 
 - name: "Import Deflate confiruation file"
   when: '"deflate" in install_apache_modules'
@@ -189,7 +189,7 @@
     dest: "/etc/apache2/mods-available/deflate.conf"
     owner: "www-data"
     group: "www-data"
-    mode: "0600"
+    mode: "0776"
 
 - name: "Install ModPageSpeed"
   when: install_apache_enable_pagespeed | default(false)
@@ -206,7 +206,7 @@
         dest: "/etc/apache2/mods-enabled/pagespeed.conf"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Check /var/www/html/blackhole/mod_pagespeed"
       register: file_check
@@ -221,7 +221,7 @@
         recurse: yes
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
 - name: "Remove potential pagespeed list"
   block:
@@ -418,7 +418,7 @@
         dest: "/etc/apache2/mods-available/mpm_prefork.conf"
         owner: "www-data"
         group: "www-data"
-        mode: "0600"
+        mode: "0776"
 
     - name: "Enable MPM PREFORK module"
       register: output
