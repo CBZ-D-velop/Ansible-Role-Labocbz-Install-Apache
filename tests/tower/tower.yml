@@ -1,4 +1,4 @@
 ---
 tower_install_apache_security_core_version: "3.3.0"
 tower_install_apache_security_version: "3.0.10"
-tower_install_apache_remove_all_vhosts: true
+tower_install_apache_remove_all_vhosts: false
