@@ -28,6 +28,8 @@
   notify: "Restart Apache2"
   block:
     - name: "Create /var/www/html/ directory"
+      register: output
+      changed_when: output.size < 0
       ansible.builtin.file:
         path: "/var/www/html"
         state: directory
@@ -37,6 +39,8 @@
         mode: "0755"
 
     - name: "Create /var/log/apache2 directory"
+      register: output
+      changed_when: output.size < 0
       ansible.builtin.file:
         path: "/var/log/apache2"
         state: directory
