@@ -2,6 +2,9 @@
 install_apache_https_listen_port: 443
 install_apache_http_listen_port: 80
 
+install_apache_group: "www-data"
+install_apache_user: "www-data"
+
 install_apache_modules:
   - "ssl"
   - "rewrite"

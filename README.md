@@ -118,6 +118,9 @@ Some vars a required to run this role:
 install_apache_https_listen_port: 443
 install_apache_http_listen_port: 80
 
+install_apache_group: "www-data"
+install_apache_user: "www-data"
+
 install_apache_modules:
   - "ssl"
   - "rewrite"
@@ -271,6 +274,10 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2023-11-29: MPM custom
 
 * You can now custom the mpm module
+
+### 2023-12-14: System users
+
+* Role can now use system users and address groups
 
 ## Authors
 
