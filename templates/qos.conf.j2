@@ -5,9 +5,9 @@
 ##############################
 
 <IfModule qos_module>
-   QS_ClientEntries 10000
-   QS_SrvMaxConnPerIP 50
-   MaxClients 256
-   QS_SrvMaxConnClose 180
-   QS_SrvMinDataRate 150 1200
+   QS_ClientEntries 10240
+   QS_SrvMaxConnPerIP 256
+   MaxClients 1024
+   QS_SrvMaxConnClose 128
+   QS_SrvMinDataRate 256 2048
 </IfModule>
