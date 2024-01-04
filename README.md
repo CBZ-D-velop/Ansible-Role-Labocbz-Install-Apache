@@ -279,6 +279,11 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * Role can now use system users and address groups
 
+### 2024-01-04: No more Git
+
+* Role stopped to use Git for librairies donwloading
+* Role now use wget / get_url for download
+
 ## Authors
 
 * Lord Robin Crombez
