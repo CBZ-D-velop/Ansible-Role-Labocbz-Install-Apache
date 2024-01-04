@@ -147,12 +147,16 @@
         group: "{{ install_apache_group }}"
         mode: "0775"
 
-    - name: "Dowload coreruleset by clone its repository"
-      when: not file_check.stat.exists
-      ansible.builtin.git:
-        repo: "https://github.com/coreruleset/coreruleset"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
-        version: "v{{ install_apache_security_core_version }}"
+    - name: "Download sources and extract"
+      ansible.builtin.unarchive:
+        src: "https://github.com/coreruleset/coreruleset/archive/refs/tags/v{{ install_apache_security_core_version }}.zip"
+        dest: "/etc/apache2/modsecurity-crs"
+        owner: "{{ install_apache_user }}"
+        group: "{{ install_apache_group }}"
+        mode: "0775"
+        remote_src: true
+        exclude:
+          - "coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
 
     - name: "Import CRS confiruations files"
       ansible.builtin.template:
