@@ -284,6 +284,11 @@ Here you can put your change to keep a trace of your work and decisions.
 * Role stopped to use Git for librairies donwloading
 * Role now use wget / get_url for download
 
+### 2024-01-20: http-check
+
+* Added a conf for /http-check as LB can check the app
+* Added a log exclusion for the check
+
 ## Authors
 
 * Lord Robin Crombez
