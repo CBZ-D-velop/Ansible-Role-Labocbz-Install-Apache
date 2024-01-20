@@ -477,34 +477,34 @@
 
 - name: "Handle http-check"
   block:
-    - name: "Check {{ var_install_httpd_default_document_root }}/http-check"
+    - name: "Check /var/www/html/blackhole/http-check"
       register: file_check
       ansible.builtin.stat:
-        path: "{{ var_install_httpd_default_document_root }}/http-check"
+        path: "/var/www/html/blackhole/http-check"
 
-    - name: "Add {{ var_install_httpd_default_document_root }}/http-check"
-      when: file_check.stat.exists
+    - name: "Add /var/www/html/blackhole/http-check"
+      when: not file_check.stat.exists
       register: output
       changed_when: output.changed != true and output.changed != false
       ansible.builtin.file:
-        path: "{{ var_install_httpd_default_document_root }}/http-check"
+        path: "/var/www/html/blackhole/http-check"
         owner: "{{ install_apache_user }}"
         group: "{{ install_apache_group }}"
         mode: "0775"
         state: directory
         recurse: yes
 
-    - name: "Check {{ var_install_httpd_default_document_root }}/http-check/index.gif"
+    - name: "Check /var/www/html/blackhole/http-check/index.gif"
       register: file_check
       ansible.builtin.stat:
-        path: "{{ var_install_httpd_default_document_root }}/http-check/index.gif"
+        path: "/var/www/html/blackhole/http-check/index.gif"
 
-    - name: "Add {{ var_install_httpd_default_document_root }}/http-check/index.gif"
-      when: file_check.stat.exists
+    - name: "Add /var/www/html/blackhole/http-check/index.gif"
+      when: not file_check.stat.exists
       register: output
       changed_when: output.changed != true and output.changed != false
       ansible.builtin.file:
-        path: "{{ var_install_httpd_default_document_root }}/http-check/index.gif"
+        path: "/var/www/html/blackhole/http-check/index.gif"
         owner: "{{ install_apache_user }}"
         group: "{{ install_apache_group }}"
         mode: "0775"
