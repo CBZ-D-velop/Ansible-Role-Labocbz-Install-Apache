@@ -244,6 +244,7 @@ IncludeOptional conf-enabled/*.conf
 IncludeOptional sites-enabled/*.conf
 
 Alias /http-check /var/www/html/blackhole/http-check
+SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
 <Directory "/var/www/html/blackhole/http-check">
         Options -Indexes +FollowSymLinks
         AllowOverride None
