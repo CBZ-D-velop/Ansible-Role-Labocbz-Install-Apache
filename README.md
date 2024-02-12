@@ -289,6 +289,10 @@ Here you can put your change to keep a trace of your work and decisions.
 * Added a conf for /http-check as LB can check the app
 * Added a log exclusion for the check
 
+### 2024-02-12: QOS
+
+* Added an install with dpkg to fix the PCRE lib install
+
 ## Authors
 
 * Lord Robin Crombez
