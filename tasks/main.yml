@@ -91,10 +91,10 @@
   when: install_apache_enable_qos | default(false)
   block:
     - name: "Install libapache2-mod-qos"
-      ansible.builtin.package:
-        update_cache: true
-        name:
-          - "libapache2-mod-qos"
+      ansible.builtin.shell: |
+        cd /tmp
+        wget http://ftp.us.debian.org/debian/pool/main/liba/libapache2-mod-qos/libapache2-mod-qos_11.74-1+b1_amd64.deb
+        dpkg -i libapache2-mod-qos_11.74-1+b1_amd64.deb
 
     - name: "Import mod_qos confiruations files"
       ansible.builtin.template:
