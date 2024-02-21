@@ -1,6 +1,6 @@
 ---
 - name: "Converge"
-  hosts: "all"
+  hosts: "all:&local"
   tasks:
     # replace these tasks with whatever you find suitable to test
     - name: "Copy something to test use of synchronize module"
@@ -13,17 +13,17 @@
       tags:
         - "labocbz.install_apache"
       vars:
-        install_apache_https_listen_port: "{{ inv_install_apache_https_listen_port }}"
-        install_apache_http_listen_port: "{{ inv_install_apache_http_listen_port }}"
-        install_apache_modules: "{{ inv_install_apache_modules }}"
-        install_apache_enable_qos: "{{ inv_install_apache_enable_qos }}"
-        install_apache_enable_security: "{{ inv_install_apache_enable_security }}"
-        install_apache_security_core_version: "{{ tower_install_apache_security_core_version }}"
-        install_apache_remove_all_vhosts: "{{ tower_install_apache_remove_all_vhosts }}"
-        install_apache_loglevel: "{{ inv_install_apache_loglevel }}"
-        install_apache_security_version: "{{ tower_install_apache_security_version }}"
-        install_apache_enable_evasive: "{{ inv_install_apache_enable_evasive }}"
-        install_apache_enable_pagespeed: "{{ inv_install_apache_enable_pagespeed }}"
-        install_apache_enable_prefork: "{{ inv_install_apache_enable_prefork }}"
+        install_apache__https_listen_port: "{{ inv_install_apache__https_listen_port }}"
+        install_apache__http_listen_port: "{{ inv_install_apache__http_listen_port }}"
+        install_apache__modules: "{{ inv_install_apache__modules }}"
+        install_apache__enable_qos: "{{ inv_install_apache__enable_qos }}"
+        install_apache__enable_security: "{{ inv_install_apache__enable_security }}"
+        install_apache__security_core_version: "{{ tower_install_apache__security_core_version }}"
+        install_apache__remove_all_vhosts: "{{ tower_install_apache__remove_all_vhosts }}"
+        install_apache__loglevel: "{{ inv_install_apache__loglevel }}"
+        install_apache__security_version: "{{ tower_install_apache__security_version }}"
+        install_apache__enable_evasive: "{{ inv_install_apache__enable_evasive }}"
+        install_apache__enable_pagespeed: "{{ inv_install_apache__enable_pagespeed }}"
+        install_apache__enable_prefork: "{{ inv_install_apache__enable_prefork }}"
       ansible.builtin.include_role:
         name: "labocbz.install_apache"

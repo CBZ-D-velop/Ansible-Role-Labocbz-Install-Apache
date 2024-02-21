@@ -1,4 +1,4 @@
-# Ansible role: labocbz.install_apache_
+# Ansible role: labocbz.install_apache__
 
 ![Licence Status](https://img.shields.io/badge/licence-MIT-brightgreen)
 ![CI Status](https://img.shields.io/badge/CI-success-brightgreen)
@@ -115,35 +115,35 @@ Some vars a required to run this role:
 
 ```YAML
 ---
-install_apache_https_listen_port: 443
-install_apache_http_listen_port: 80
+install_apache__https_listen_port: 443
+install_apache__http_listen_port: 80
 
-install_apache_group: "www-data"
-install_apache_user: "www-data"
+install_apache__group: "www-data"
+install_apache__user: "www-data"
 
-install_apache_modules:
+install_apache__modules:
   - "ssl"
   - "rewrite"
   - "filter"
   - "headers"
 
-install_apache_remove_all_vhosts: true
-install_apache_loglevel: "info"
+install_apache__remove_all_vhosts: true
+install_apache__loglevel: "info"
 
-install_apache_enable_qos: false
-install_apache_enable_security: false
-install_apache_enable_evasive: false
-install_apache_enable_pagespeed: false
-install_apache_enable_prefork: true
+install_apache__enable_qos: false
+install_apache__enable_security: false
+install_apache__enable_evasive: false
+install_apache__enable_pagespeed: false
+install_apache__enable_prefork: true
 
-install_apache_security_core_version: "3.3.0"
-install_apache_security_version: "3.0.10"
+install_apache__security_core_version: "3.3.0"
+install_apache__security_version: "3.0.10"
 
-install_apache_mpm_start_servers: 1
-install_apache_mpm_min_spare_servers: 3
-install_apache_mpm_max_spare_servers: 3
-install_apache_mpm_max_request_workers: 20 # 512 MB / 20 MB = 25.6
-install_apache_mpm_max_connections_per_child: 5000
+install_apache__mpm_start_servers: 1
+install_apache__mpm_min_spare_servers: 3
+install_apache__mpm_max_spare_servers: 3
+install_apache__mpm_max_request_workers: 20 # 512 MB / 20 MB = 25.6
+install_apache__mpm_max_connections_per_child: 5000
 
 ```
 
@@ -156,10 +156,10 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 ```YAML
 # From inventory
 ---
-inv_install_apache_https_listen_port: 443
-inv_install_apache_http_listen_port: 80
+inv_install_apache__https_listen_port: 443
+inv_install_apache__http_listen_port: 80
 
-inv_install_apache_modules:
+inv_install_apache__modules:
   - "ssl"
   - "rewrite"
   - "proxy"
@@ -171,23 +171,23 @@ inv_install_apache_modules:
   - "headers"
   - "proxy_wstunnel"
 
-inv_install_apache_loglevel: "info"
-inv_install_apache_remove_all_vhosts: true
+inv_install_apache__loglevel: "info"
+inv_install_apache__remove_all_vhosts: true
 
-inv_install_apache_enable_qos: true
-inv_install_apache_enable_security: true
-inv_install_apache_enable_evasive: true
-inv_install_apache_enable_pagespeed: true
-inv_install_apache_enable_prefork: false
+inv_install_apache__enable_qos: false
+inv_install_apache__enable_security: true
+inv_install_apache__enable_evasive: true
+inv_install_apache__enable_pagespeed: true
+inv_install_apache__enable_prefork: false
 
 ```
 
 ```YAML
 # From AWX / Tower
 ---
-tower_install_apache_security_core_version: "3.3.0"
-tower_install_apache_security_version: "3.0.10"
-tower_install_apache_remove_all_vhosts: true
+tower_install_apache__security_core_version: "3.3.0"
+tower_install_apache__security_version: "3.0.10"
+tower_install_apache__remove_all_vhosts: true
 
 ```
 
@@ -200,18 +200,18 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
   tags:
     - "labocbz.install_apache"
   vars:
-    install_apache_https_listen_port: "{{ inv_install_apache_https_listen_port }}"
-    install_apache_http_listen_port: "{{ inv_install_apache_http_listen_port }}"
-    install_apache_modules: "{{ inv_install_apache_modules }}"
-    install_apache_enable_qos: "{{ inv_install_apache_enable_qos }}"
-    install_apache_enable_security: "{{ inv_install_apache_enable_security }}"
-    install_apache_security_core_version: "{{ tower_install_apache_security_core_version }}"
-    install_apache_remove_all_vhosts: "{{ tower_install_apache_remove_all_vhosts }}"
-    install_apache_loglevel: "{{ inv_install_apache_loglevel }}"
-    install_apache_security_version: "{{ tower_install_apache_security_version }}"
-    install_apache_enable_evasive: "{{ inv_install_apache_enable_evasive }}"
-    install_apache_enable_pagespeed: "{{ inv_install_apache_enable_pagespeed }}"
-    install_apache_enable_prefork: "{{ inv_install_apache_enable_prefork }}"
+    install_apache__https_listen_port: "{{ inv_install_apache__https_listen_port }}"
+    install_apache__http_listen_port: "{{ inv_install_apache__http_listen_port }}"
+    install_apache__modules: "{{ inv_install_apache__modules }}"
+    install_apache__enable_qos: "{{ inv_install_apache__enable_qos }}"
+    install_apache__enable_security: "{{ inv_install_apache__enable_security }}"
+    install_apache__security_core_version: "{{ tower_install_apache__security_core_version }}"
+    install_apache__remove_all_vhosts: "{{ tower_install_apache__remove_all_vhosts }}"
+    install_apache__loglevel: "{{ inv_install_apache__loglevel }}"
+    install_apache__security_version: "{{ tower_install_apache__security_version }}"
+    install_apache__enable_evasive: "{{ inv_install_apache__enable_evasive }}"
+    install_apache__enable_pagespeed: "{{ inv_install_apache__enable_pagespeed }}"
+    install_apache__enable_prefork: "{{ inv_install_apache__enable_prefork }}"
   ansible.builtin.include_role:
     name: "labocbz.install_apache"
 ```
@@ -228,7 +228,7 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2023-04-18: Defaults vhosts
 
 * All vhosts are disabled on install, because you have to add any conf after the install.
-* If you perform a reinstall, you can call the add_install_apache_confs to re import removed conf.
+* If you perform a reinstall, you can call the add_install_apache__confs to re import removed conf.
 * Default vhost (HTTP/HTTPS) can be enabled or disabled on install, in order to have a minimal blach hole for all unmatched domains.
 
 ### 2023-04-19: Clean others vhosts
@@ -289,9 +289,10 @@ Here you can put your change to keep a trace of your work and decisions.
 * Added a conf for /http-check as LB can check the app
 * Added a log exclusion for the check
 
-### 2024-02-12: QOS
+### 2024-02-21: Fix and CI
 
-* Added an install with dpkg to fix the PCRE lib install
+* Added support for new CI base
+* Edit all vars with __
 
 ## Authors
 
