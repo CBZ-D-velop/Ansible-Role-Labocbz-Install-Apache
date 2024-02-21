@@ -12,9 +12,9 @@
     # MaxRequestWorkers: maximum number of server processes allowed to start
     # MaxConnectionsPerChild: maximum number of requests a server process serves
 
-    StartServers            {{ install_apache_mpm_start_servers }}
-    MinSpareServers         {{ install_apache_mpm_min_spare_servers }}
-    MaxSpareServers         {{ install_apache_mpm_max_spare_servers }}
-    MaxRequestWorkers       {{ install_apache_mpm_max_request_workers }}
-    MaxConnectionsPerChild  {{ install_apache_mpm_max_connections_per_child }}
+    StartServers            {{ install_apache__mpm_start_servers }}
+    MinSpareServers         {{ install_apache__mpm_min_spare_servers }}
+    MaxSpareServers         {{ install_apache__mpm_max_spare_servers }}
+    MaxRequestWorkers       {{ install_apache__mpm_max_request_workers }}
+    MaxConnectionsPerChild  {{ install_apache__mpm_max_connections_per_child }}
 </IfModule>

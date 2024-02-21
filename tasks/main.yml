@@ -34,8 +34,8 @@
         path: "/var/www/html"
         state: directory
         recurse: yes
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Create /var/log/apache2 directory"
@@ -45,8 +45,8 @@
         path: "/var/log/apache2"
         state: directory
         recurse: yes
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Check /var/www/html/blackhole directory"
@@ -60,13 +60,13 @@
         path: "/var/www/html/blackhole"
         state: directory
         recurse: yes
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Enable Apache modules"
       notify: "Restart Apache2"
-      loop: "{{ install_apache_modules }}"
+      loop: "{{ install_apache__modules }}"
       loop_control:
         loop_var: module
       community.general.apache2_module:
@@ -82,26 +82,27 @@
       ansible.builtin.template:
         src: "templates/{{ file }}.j2"
         dest: "/etc/apache2/{{ file }}"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
 - name: "Install and configure QOS"
   notify: "Restart Apache2"
-  when: install_apache_enable_qos | default(false)
+  when: install_apache__enable_qos | default(false)
   block:
-    - name: "Install libapache2-mod-qos"
-      ansible.builtin.shell: |
-        cd /tmp
-        wget http://ftp.us.debian.org/debian/pool/main/liba/libapache2-mod-qos/libapache2-mod-qos_11.74-1+b1_amd64.deb
-        dpkg -i libapache2-mod-qos_11.74-1+b1_amd64.deb
+    - name: "Install packages libapache2-mod-qos"
+      notify: "Enable and start Apache2"
+      ansible.builtin.package:
+        update_cache: true
+        name:
+          - "libapache2-mod-qos"
 
     - name: "Import mod_qos confiruations files"
       ansible.builtin.template:
         src: "templates/qos.conf.j2"
         dest: "/etc/apache2/mods-available/qos.conf"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Enable Apache Qos module"
@@ -111,7 +112,7 @@
 
 - name: "Install and configure ModSecurity"
   notify: "Restart Apache2"
-  when: install_apache_enable_security | default(false)
+  when: install_apache__enable_security | default(false)
   block:
     - name: "Install libapache2-mod-security2"
       ansible.builtin.package:
@@ -128,50 +129,50 @@
       ansible.builtin.template:
         src: "{{ file.src }}"
         dest: "{{ file.dest }}"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
-    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }} directory"
+    - name: "Check directory /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}"
       register: file_check
       ansible.builtin.stat:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}"
 
     - name: "Create /etc/apache2/modsecurity-crs directory"
       when: not file_check.stat.exists
       ansible.builtin.file:
-        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}"
+        path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}"
         state: directory
         recurse: yes
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Download sources and extract"
       ansible.builtin.unarchive:
-        src: "https://github.com/coreruleset/coreruleset/archive/refs/tags/v{{ install_apache_security_core_version }}.zip"
+        src: "https://github.com/coreruleset/coreruleset/archive/refs/tags/v{{ install_apache__security_core_version }}.zip"
         dest: "/etc/apache2/modsecurity-crs"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
         remote_src: true
         exclude:
-          - "coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
+          - "coreruleset-{{ install_apache__security_core_version }}/crs-setup.conf"
 
     - name: "Import CRS confiruations files"
       ansible.builtin.template:
         src: "templates/crs-setup.conf.j2"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/crs-setup.conf"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}/crs-setup.conf"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Import unicode.mapping file from github"
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v{{ install_apache_security_version }}/unicode.mapping"
-        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache_security_core_version }}/unicode.mapping"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        url: "https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v{{ install_apache__security_version }}/unicode.mapping"
+        dest: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}/unicode.mapping"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Enable Apache2 Security module"
@@ -181,7 +182,7 @@
 
 - name: "Install and configure ModEvasive"
   notify: "Restart Apache2"
-  when: install_apache_enable_evasive | default(false)
+  when: install_apache__enable_evasive | default(false)
   block:
     - name: "Install libapache2-mod-evasive"
       ansible.builtin.package:
@@ -193,12 +194,12 @@
       ansible.builtin.template:
         src: "templates/evasive.conf.j2"
         dest: "/etc/apache2/mods-available/evasive.conf"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
 - name: "Import Headers confiruation file"
-  when: '"headers" in install_apache_modules'
+  when: '"headers" in install_apache__modules'
   notify: "Restart Apache2"
   ansible.builtin.template:
     src: "templates/headers.conf.j2"
@@ -208,17 +209,17 @@
     mode: "0776"
 
 - name: "Import Deflate confiruation file"
-  when: '"deflate" in install_apache_modules'
+  when: '"deflate" in install_apache__modules'
   notify: "Restart Apache2"
   ansible.builtin.template:
     src: "templates/deflate.conf.j2"
     dest: "/etc/apache2/mods-available/deflate.conf"
-    owner: "{{ install_apache_user }}"
-    group: "{{ install_apache_group }}"
+    owner: "{{ install_apache__user }}"
+    group: "{{ install_apache__group }}"
     mode: "0775"
 
 - name: "Install ModPageSpeed"
-  when: install_apache_enable_pagespeed | default(false)
+  when: install_apache__enable_pagespeed | default(false)
   notify: "Restart Apache2"
   block:
     - name: "Install ModPageSpeed"
@@ -230,8 +231,8 @@
       ansible.builtin.template:
         src: "templates/pagespeed.conf.j2"
         dest: "/etc/apache2/mods-enabled/pagespeed.conf"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Check /var/www/html/blackhole/mod_pagespeed"
@@ -245,8 +246,8 @@
         path: "/var/www/html/blackhole/mod_pagespeed"
         state: directory
         recurse: yes
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
 - name: "Remove potential pagespeed list"
@@ -266,7 +267,7 @@
 
 - name: "Disable all other vhosts and clean"
   notify: "Reload Apache2"
-  when: install_apache_remove_all_vhosts | default(false)
+  when: install_apache__remove_all_vhosts | default(false)
   block:
     - name: "Find all files in available folder"
       register: vhosts
@@ -299,7 +300,7 @@
   notify: "Restart Apache2"
   block:
     - name: "Clear Headers"
-      when: not ('"headers" in install_apache_modules')
+      when: not ('"headers" in install_apache__modules')
       block:
         - name: "Check /etc/apache2/mods-enabled/headers.conf"
           register: file_check
@@ -319,7 +320,7 @@
             state: absent
 
     - name: "Clear Deflate.conf"
-      when: not ('"deflate.conf" in install_apache_modules')
+      when: not ('"deflate.conf" in install_apache__modules')
       block:
         - name: "Check /etc/apache2/mods-enabled/deflate.conf"
           register: file_check
@@ -339,7 +340,7 @@
             state: absent
 
     - name: "Clear ModEvasive"
-      when: not (install_apache_enable_evasive | default(false) )
+      when: not (install_apache__enable_evasive | default(false) )
       block:
         - name: "Check /etc/apache2/mods-enabled/evasive.conf"
           register: file_check
@@ -359,7 +360,7 @@
             state: absent
 
     - name: "Clear ModPageSpeed"
-      when: not (install_apache_enable_pagespeed | default(false) )
+      when: not (install_apache__enable_pagespeed | default(false) )
       block:
         - name: "Check /etc/apache2/mods-enabled/pagespeed.conf"
           register: file_check
@@ -379,7 +380,7 @@
             state: absent
 
     - name: "Clear ModSecurity"
-      when: not (install_apache_enable_security | default(false) )
+      when: not (install_apache__enable_security | default(false) )
       block:
         - name: "Check /etc/apache2/mods-enabled/modsecurity.conf"
           register: file_check
@@ -410,7 +411,7 @@
             state: absent
 
     - name: "Clear ModQos"
-      when: not (install_apache_enable_qos | default(false) )
+      when: not (install_apache__enable_qos | default(false) )
       block:
         - name: "Check /etc/apache2/mods-enabled/qos.conf"
           register: file_check
@@ -430,7 +431,7 @@
             state: absent
 
 - name: "Configure MPM PREFORK"
-  when: install_apache_enable_prefork | default(false)
+  when: install_apache__enable_prefork | default(false)
   notify: "Restart Apache2"
   block:
     - name: "Disable MPM EVENT module"
@@ -442,8 +443,8 @@
       ansible.builtin.template:
         src: "templates/mpm_prefork.conf.j2"
         dest: "/etc/apache2/mods-available/mpm_prefork.conf"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
 
     - name: "Enable MPM PREFORK module"
@@ -453,7 +454,7 @@
 
 - name: "Configure MPM EVENT"
   notify: "Restart Apache2"
-  when: not (install_apache_enable_prefork | default(false))
+  when: not (install_apache__enable_prefork | default(false))
   block:
     - name: "Disable MPM PREFORK module"
       register: output
@@ -488,8 +489,8 @@
       changed_when: output.changed != true and output.changed != false
       ansible.builtin.file:
         path: "/var/www/html/blackhole/http-check"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
         state: directory
         recurse: yes
@@ -505,7 +506,7 @@
       changed_when: output.changed != true and output.changed != false
       ansible.builtin.file:
         path: "/var/www/html/blackhole/http-check/index.gif"
-        owner: "{{ install_apache_user }}"
-        group: "{{ install_apache_group }}"
+        owner: "{{ install_apache__user }}"
+        group: "{{ install_apache__group }}"
         mode: "0775"
         state: touch

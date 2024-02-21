@@ -114,8 +114,8 @@ KeepAliveTimeout 5
 #User ${APACHE_RUN_USER}
 #Group ${APACHE_RUN_GROUP}
 
-User {{ install_apache_user }}
-Group {{ install_apache_group }}
+User {{ install_apache__user }}
+Group {{ install_apache__group }}
 
 #
 # HostnameLookups: Log the names of clients or just their IP addresses
@@ -143,7 +143,7 @@ ErrorLog ${APACHE_LOG_DIR}/error.log
 # It is also possible to configure the log level for particular modules, e.g.
 # "LogLevel info ssl:warn"
 #
-LogLevel {{ install_apache_loglevel }}
+LogLevel {{ install_apache__loglevel }}
 
 # Include module configuration:
 IncludeOptional mods-enabled/*.load
@@ -215,19 +215,19 @@ LogFormat "%h %l %u %t \"%r\" %>s %O" common
 LogFormat "%{Referer}i -> %U" referer
 LogFormat "%{User-agent}i" agent
 
-{% if install_apache_enable_evasive | default(false) %}
+{% if install_apache__enable_evasive | default(false) %}
 <IfModule mod_evasive20.c>
         DOSLogDir /var/log/apache2/mod_evasive.log
 </IfModule>
 {% endif %}
 
-{% if install_apache_enable_security | default(false) %}
+{% if install_apache__enable_security | default(false) %}
 <IfModule security2_module>
         SecAuditLog /var/log/apache2/modsec_audit.log
 </IfModule>
 {% endif %}
 
-{% if install_apache_enable_pagespeed | default(false) %}
+{% if install_apache__enable_pagespeed | default(false) %}
 <IfModule pagespeed_module>
         # Set the PageSpeed file cache directory
         ModPagespeedFileCachePath /var/www/html/mod_pagespeed
@@ -256,7 +256,7 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
         SetEnvIf Request_URI "^/$" blackhole-log
 </Directory>
 
-<VirtualHost *:{{ install_apache_http_listen_port }}>
+<VirtualHost *:{{ install_apache__http_listen_port }}>
         ServerName null
         ServerAlias *
         Redirect 403 /
@@ -270,12 +270,12 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
         CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
-        {% if install_apache_enable_evasive | default(false) %}
+        {% if install_apache__enable_evasive | default(false) %}
         <IfModule mod_evasive20.c>
                 DOSLogDir /var/www/html/blackhole/mod_evasive.log
         </IfModule>
         {% endif %}
-        {% if install_apache_enable_security | default(false) %}
+        {% if install_apache__enable_security | default(false) %}
         <IfModule security2_module>
                 SecAuditLog /var/www/html/blackhole/modsec_audit.log
                 SecAuditEngine Off
@@ -285,7 +285,7 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
                 SecAuditLogRelevantStatus ^(?:5|4(?!04))
         </IfModule>
         {% endif %}
-        {% if install_apache_enable_pagespeed | default(false) %}
+        {% if install_apache__enable_pagespeed | default(false) %}
         <IfModule pagespeed_module>
                 # Set the PageSpeed file cache directory
                 ModPagespeedFileCachePath /var/www/html/blackhole/mod_pagespeed/
@@ -296,13 +296,13 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
                 # Redirect all HTTP traffic to HTTPS
                 RewriteEngine On
                 RewriteCond %{HTTPS} off
-                RewriteRule ^(.*)$ https://%{HTTP_HOST}:{{ install_apache_https_listen_port }}%{REQUEST_URI} [L,R=301]
+                RewriteRule ^(.*)$ https://%{HTTP_HOST}:{{ install_apache__https_listen_port }}%{REQUEST_URI} [L,R=301]
         </IfModule>
 
 </VirtualHost>
 
 <IfModule mod_ssl.c>
-<VirtualHost *:{{ install_apache_https_listen_port }}>
+<VirtualHost *:{{ install_apache__https_listen_port }}>
         ServerName null
         ServerAlias *
         Redirect 403 /
@@ -316,12 +316,12 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
         ErrorLog /var/www/html/blackhole/error.log
         CustomLog /var/www/html/blackhole/access.log combined env=!blackhole-log
 
-        {% if install_apache_enable_evasive | default(false) %}
+        {% if install_apache__enable_evasive | default(false) %}
         <IfModule mod_evasive20.c>
                 DOSLogDir /var/www/html/blackhole/mod_evasive.log
         </IfModule>
         {% endif %}
-        {% if install_apache_enable_security | default(false) %}
+        {% if install_apache__enable_security | default(false) %}
         <IfModule security2_module>
                 SecAuditLog /var/www/html/blackhole/modsec_audit.log
                 SecAuditEngine Off
@@ -331,7 +331,7 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
                 SecAuditLogRelevantStatus ^(?:5|4(?!04))
         </IfModule>
         {% endif %}
-        {% if install_apache_enable_pagespeed | default(false) %}
+        {% if install_apache__enable_pagespeed | default(false) %}
         <IfModule pagespeed_module>
                 # Set the PageSpeed file cache directory
                 ModPagespeedFileCachePath /var/www/html/blackhole/mod_pagespeed/
