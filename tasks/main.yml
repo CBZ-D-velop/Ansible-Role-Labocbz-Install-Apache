@@ -133,7 +133,7 @@
         group: "{{ install_apache__group }}"
         mode: "0775"
 
-    - name: "Check /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }} directory"
+    - name: "Check directory /etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}"
       register: file_check
       ansible.builtin.stat:
         path: "/etc/apache2/modsecurity-crs/coreruleset-{{ install_apache__security_core_version }}"
