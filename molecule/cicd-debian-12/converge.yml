@@ -3,13 +3,21 @@
   hosts: "cicd-debian-12"
   tasks:
 
-    - name: "Include labocbz.prepare_host"
+    - name: "Include labocbz.install_apache"
       tags:
-        - "labocbz.prepare_host"
+        - "labocbz.install_apache"
       vars:
-        prepare_host__users: "{{ inv_prepare_host__users }}"
-        prepare_host__packages_removed: "{{ inv_prepare_host__packages_removed }}"
-        prepare_host__packages_installed: "{{ inv_prepare_host__packages_installed }}"
-        prepare_host__system_users: "{{ inv_prepare_host__system_users }}"
+        install_apache__https_listen_port: "{{ inv_install_apache__https_listen_port }}"
+        install_apache__http_listen_port: "{{ inv_install_apache__http_listen_port }}"
+        install_apache__modules: "{{ inv_install_apache__modules }}"
+        install_apache__enable_qos: "{{ inv_install_apache__enable_qos }}"
+        install_apache__enable_security: "{{ inv_install_apache__enable_security }}"
+        install_apache__security_core_version: "{{ tower_install_apache__security_core_version }}"
+        install_apache__remove_all_vhosts: "{{ tower_install_apache__remove_all_vhosts }}"
+        install_apache__loglevel: "{{ inv_install_apache__loglevel }}"
+        install_apache__security_version: "{{ tower_install_apache__security_version }}"
+        install_apache__enable_evasive: "{{ inv_install_apache__enable_evasive }}"
+        install_apache__enable_pagespeed: "{{ inv_install_apache__enable_pagespeed }}"
+        install_apache__enable_prefork: "{{ inv_install_apache__enable_prefork }}"
       ansible.builtin.include_role:
-        name: "labocbz.prepare_host"
+        name: "labocbz.install_apache"
