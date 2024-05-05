@@ -352,3 +352,11 @@ SetEnvIf Request_URI "^/http-check/index.gif$" blackhole-log
 
 </VirtualHost>
 </IfModule>
+
+# Add these line inside the main Apache2 conf file
+LDAPSharedCacheSize 500000
+LDAPCacheEntries 1024
+LDAPCacheTTL 600
+LDAPOpCacheEntries 1024
+LDAPOpCacheTTL 600
+LDAPVerifyServerCert off

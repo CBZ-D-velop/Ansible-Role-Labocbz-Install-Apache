@@ -294,6 +294,11 @@ Here you can put your change to keep a trace of your work and decisions.
 * Added support for new CI base
 * Edit all vars with __
 
+### 2024-05-05: LDAP
+
+* Added optimizations for default LDAP Basic Auth
+* Added a disabled options for LDAPS (certficates verify)
+
 ## Authors
 
 * Lord Robin Crombez
