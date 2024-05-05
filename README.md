@@ -297,7 +297,7 @@ Here you can put your change to keep a trace of your work and decisions.
 ### 2024-05-05: LDAP
 
 * Added optimizations for default LDAP Basic Auth
-* Added a disabled options for LDAPS (certficate verify)
+* Added a disabled options for LDAPS (certficates verify)
 
 ## Authors
 
