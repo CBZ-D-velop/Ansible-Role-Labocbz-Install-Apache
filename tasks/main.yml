@@ -18,7 +18,7 @@
   notify: "Enable and start Apache2"
   retries: 3
   delay: 10
-  until: output is success
+  until: "output is success"
   ansible.builtin.package:
     update_cache: true
     name:
@@ -97,7 +97,7 @@
       notify: "Enable and start Apache2"
       retries: 3
       delay: 10
-      until: output is success
+      until: "output is success"
       ansible.builtin.package:
         update_cache: true
         name:
@@ -123,7 +123,7 @@
     - name: "Install libapache2-mod-security2"
       retries: 3
       delay: 10
-      until: output is success
+      until: "output is success"
       ansible.builtin.package:
         update_cache: true
         name:
@@ -196,7 +196,7 @@
     - name: "Install libapache2-mod-evasive"
       retries: 3
       delay: 10
-      until: output is success
+      until: "output is success"
       ansible.builtin.package:
         update_cache: true
         name:
@@ -237,7 +237,7 @@
     - name: "Install ModPageSpeed"
       retries: 3
       delay: 10
-      until: output is success
+      until: "output is success"
       ansible.builtin.package:
         update_cache: true
         deb: "https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb"
