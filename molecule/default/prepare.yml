@@ -31,7 +31,7 @@
       ansible.builtin.shell: "echo \"{{ hostvars[host]['ansible_default_ipv4']['address'] }}  {{ host }} # from Molecule\" >> /etc/hosts"
 
     #- name: "Import cryptographic content if needed"
-    #  run_once: yes
+    #  run_once: true
     #  loop: "{{ inv_cert_bundles }}"
     #  loop_control:
     #    loop_var: bundle
@@ -40,7 +40,7 @@
     #    dest: "/tmp/{{ bundle.name }}.zip"
     #    owner: "www-data"
     #    group: "www-data"
-    #    mode: 0700
+    #    mode: "0700"
 
     #- name: "Include labocbz.add_certificates"
     #  tags:
