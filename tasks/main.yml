@@ -16,7 +16,7 @@
 
 - name: "Install packages"
   notify: "Enable and start Apache2"
-    retries: 3
+  retries: 3
   delay: 10
   until: output is success
   ansible.builtin.package:
@@ -95,10 +95,10 @@
   block:
     - name: "Install packages libapache2-mod-qos"
       notify: "Enable and start Apache2"
-        retries: 3
-  delay: 10
-  until: output is success
-  ansible.builtin.package:
+      retries: 3
+      delay: 10
+      until: output is success
+      ansible.builtin.package:
         update_cache: true
         name:
           - "libapache2-mod-qos"
@@ -121,10 +121,10 @@
   when: install_apache__enable_security | default(false)
   block:
     - name: "Install libapache2-mod-security2"
-        retries: 3
-  delay: 10
-  until: output is success
-  ansible.builtin.package:
+      retries: 3
+      delay: 10
+      until: output is success
+      ansible.builtin.package:
         update_cache: true
         name:
           - "libapache2-mod-security2"
@@ -194,10 +194,10 @@
   when: install_apache__enable_evasive | default(false)
   block:
     - name: "Install libapache2-mod-evasive"
-        retries: 3
-  delay: 10
-  until: output is success
-  ansible.builtin.package:
+      retries: 3
+      delay: 10
+      until: output is success
+      ansible.builtin.package:
         update_cache: true
         name:
           - "libapache2-mod-evasive"
@@ -235,10 +235,10 @@
   notify: "Restart Apache2"
   block:
     - name: "Install ModPageSpeed"
-        retries: 3
-  delay: 10
-  until: output is success
-  ansible.builtin.package:
+      retries: 3
+      delay: 10
+      until: output is success
+      ansible.builtin.package:
         update_cache: true
         deb: "https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb"
 
