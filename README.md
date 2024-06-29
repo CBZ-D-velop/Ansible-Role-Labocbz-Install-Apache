@@ -92,7 +92,6 @@ yamllint -c ./.yamllint .
 ansible-lint --config=./.ansible-lint .
 
 # Execute and test your role
-molecule lint
 molecule create
 molecule list
 molecule converge
@@ -306,6 +305,7 @@ Here you can put your change to keep a trace of your work and decisions.
 * Change CICD vars convention
 * New workers
 * Removed all automation based on branch
+* Add retires on packages install
 
 ## Authors
 
